@@ -15,7 +15,7 @@ public class PaiementDao implements IPaiementDao {
     }
 
     @Override
-    public void creer(Paiement paiement) throws SQLException {
+    public void creer(Paiement paiement){
         String sql = "INSERT INTO paiement (type_paiement, montant, date_paiement, motif, condition_validee, agent_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, paiement.getTypePaiement().name());
@@ -33,7 +33,7 @@ public class PaiementDao implements IPaiementDao {
     }
 
     @Override
-    public Paiement lireParId(int id) throws SQLException {
+    public Paiement lireParId(int id){
         String sql = "SELECT * FROM paiement WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -46,7 +46,7 @@ public class PaiementDao implements IPaiementDao {
     }
 
     @Override
-    public List<Paiement> lireTous() throws SQLException {
+    public List<Paiement> lireTous(){
         List<Paiement> paiements = new ArrayList<>();
         String sql = "SELECT * FROM paiement ORDER BY date_paiement DESC";
         try (Statement stmt = connection.createStatement()) {
@@ -59,7 +59,7 @@ public class PaiementDao implements IPaiementDao {
     }
 
     @Override
-    public void mettreAJour(Paiement paiement) throws SQLException {
+    public void mettreAJour(Paiement paiement){
         String sql = "UPDATE paiement SET type_paiement = ?, montant = ?, date_paiement = ?, motif = ?, condition_validee = ?, agent_id = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, paiement.getTypePaiement().name());
@@ -74,7 +74,7 @@ public class PaiementDao implements IPaiementDao {
     }
 
     @Override
-    public void supprimer(int id) throws SQLException {
+    public void supprimer(int id){
         String sql = "DELETE FROM paiement WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -82,7 +82,7 @@ public class PaiementDao implements IPaiementDao {
         }
     }
 
-    private Paiement mapperPaiement(ResultSet rs) throws SQLException {
+    private Paiement mapperPaiement(ResultSet rs){
         Paiement paiement = new Paiement();
         paiement.setId(rs.getInt("id"));        
         String typePaiementStr = rs.getString("type_paiement");

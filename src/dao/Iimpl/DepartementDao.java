@@ -13,7 +13,7 @@ public class DepartementDao implements IDepartementDao {
         this.connection = connection;
     }
 
-    public void creer(Departement departement) throws SQLException {
+    public void creer(Departement departement){
         String sql = "INSERT INTO departement (nom) VALUES (?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, departement.getNom());
@@ -25,7 +25,7 @@ public class DepartementDao implements IDepartementDao {
         }
     }
 
-    public Departement lireParId(int id) throws SQLException {
+    public Departement lireParId(int id){
         String sql = "SELECT * FROM departement WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -46,7 +46,7 @@ public class DepartementDao implements IDepartementDao {
         return null;
     }
 
-    public List<Departement> lireTous() throws SQLException {
+    public List<Departement> lireTous(){
         List<Departement> departements = new ArrayList<>();
         String sql = "SELECT * FROM departement ORDER BY nom";
         try (Statement stmt = connection.createStatement()) {
@@ -66,7 +66,7 @@ public class DepartementDao implements IDepartementDao {
         return departements;
     }
 
-    public void mettreAJour(Departement departement) throws SQLException {
+    public void mettreAJour(Departement departement){
         String sql = "UPDATE departement SET nom = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, departement.getNom());
@@ -75,7 +75,7 @@ public class DepartementDao implements IDepartementDao {
         }
     }
 
-    public void supprimer(int id) throws SQLException {
+    public void supprimer(int id){
         String sql = "DELETE FROM departement WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -83,7 +83,7 @@ public class DepartementDao implements IDepartementDao {
         }
     }
 
-    private Agent getResponsableDepartement(int departementId) throws SQLException {
+    private Agent getResponsableDepartement(int departementId){
         String sql = "SELECT * FROM agent WHERE departement_id = ? AND est_responsable_departement = TRUE";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, departementId);
@@ -96,7 +96,7 @@ public class DepartementDao implements IDepartementDao {
         return null;
     }
 
-    private List<Agent> getAgentsDuDepartement(int departementId) throws SQLException {
+    private List<Agent> getAgentsDuDepartement(int departementId){
         List<Agent> agents = new ArrayList<>();
         String sql = "SELECT * FROM agent WHERE departement_id = ? ORDER BY nom, prenom";
         
@@ -111,7 +111,7 @@ public class DepartementDao implements IDepartementDao {
         return agents;
     }
     
-    private Agent mapperAgent(ResultSet rs) throws SQLException {
+    private Agent mapperAgent(ResultSet rs){
         Agent agent = new Agent();
         agent.setId(rs.getInt("id"));
         agent.setNom(rs.getString("nom"));

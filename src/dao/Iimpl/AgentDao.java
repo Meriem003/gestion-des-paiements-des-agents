@@ -15,7 +15,7 @@ public class AgentDao implements IAgentDao {
     }
 
     @Override
-    public void creer(Agent agent) throws SQLException {
+    public void creer(Agent agent){
         String sql = "INSERT INTO agent (nom, prenom, email, mot_de_passe, type_agent, departement_id, est_responsable_departement) VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, agent.getNom());
@@ -33,7 +33,6 @@ public class AgentDao implements IAgentDao {
             stmt.setBoolean(7, agent.isEstResponsableDepartement());
             stmt.executeUpdate();
             
-            // Récupérer l'ID généré
             ResultSet rs = stmt.getGeneratedKeys();
             if (rs.next()) {
                 agent.setId(rs.getInt(1));
@@ -42,7 +41,7 @@ public class AgentDao implements IAgentDao {
     }
 
     @Override
-    public Agent lireParId(int id) throws SQLException {
+    public Agent lireParId(int id){
         String sql = "SELECT * FROM agent WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -56,7 +55,7 @@ public class AgentDao implements IAgentDao {
     }
 
     @Override
-    public List<Agent> lireTous() throws SQLException {
+    public List<Agent> lireTous(){
         List<Agent> agents = new ArrayList<>();
         String sql = "SELECT * FROM agent ORDER BY nom, prenom";
         
@@ -71,7 +70,7 @@ public class AgentDao implements IAgentDao {
     }
 
     @Override
-    public void mettreAJour(Agent agent) throws SQLException {
+    public void mettreAJour(Agent agent){
         String sql = "UPDATE agent SET nom = ?, prenom = ?, email = ?, mot_de_passe = ?, type_agent = ?, departement_id = ?, est_responsable_departement = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, agent.getNom());
@@ -93,7 +92,7 @@ public class AgentDao implements IAgentDao {
     }
 
     @Override
-    public void supprimer(int id) throws SQLException {
+    public void supprimer(int id){
         String sql = "DELETE FROM agent WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
@@ -101,16 +100,14 @@ public class AgentDao implements IAgentDao {
         }
     }
 
-    // Méthode utilitaire pour mapper un ResultSet vers un objet Agent
-    private Agent mapperAgent(ResultSet rs) throws SQLException {
+   
+    private Agent mapperAgent(ResultSet rs){
         Agent agent = new Agent();
         agent.setId(rs.getInt("id"));
         agent.setNom(rs.getString("nom"));
         agent.setPrenom(rs.getString("prenom"));
         agent.setEmail(rs.getString("email"));
-        agent.setMotDePasse(rs.getString("mot_de_passe"));
-        
-        // Conversion de l'enum depuis la base de données
+        agent.setMotDePasse(rs.getString("mot_de_passe"));        
         String typeAgentStr = rs.getString("type_agent");
         if (typeAgentStr != null) {
             agent.setTypeAgent(TypeAgent.valueOf(typeAgentStr));
@@ -118,13 +115,19 @@ public class AgentDao implements IAgentDao {
         
         agent.setEstResponsableDepartement(rs.getBoolean("est_responsable_departement"));
         
-        // Charger le département si l'agent en a un
         int departementId = rs.getInt("departement_id");
         if (!rs.wasNull()) {
-            Departement departement = new Departement();
-            departement.setId(departementId);
-            // Note: Pour éviter les dépendances circulaires, on ne charge pas tous les détails du département ici
-            agent.setDepartement(departement);
+            String sqlDept = "SELECT nom FROM departement WHERE id = ?";
+            try (PreparedStatement stmtDept = connection.prepareStatement(sqlDept)) {
+                stmtDept.setInt(1, departementId);
+                ResultSet rsDept = stmtDept.executeQuery();
+                if (rsDept.next()) {
+                    Departement departement = new Departement();
+                    departement.setId(departementId);
+                    departement.setNom(rsDept.getString("nom"));
+                    agent.setDepartement(departement);
+                }
+            }
         }
         
         return agent;

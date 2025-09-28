@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface IPaiementDao {
     
-    void creer(Paiement paiement) throws SQLException;
-    Paiement lireParId(int id) throws SQLException;
-    List<Paiement> lireTous() throws SQLException;
-    void mettreAJour(Paiement paiement) throws SQLException;
-    void supprimer(int id) throws SQLException;
+    void creer(Paiement paiement);
+    Paiement lireParId(int id);
+    List<Paiement> lireTous();
+    void mettreAJour(Paiement paiement);
+    void supprimer(int id);
 }

@@ -6,12 +6,12 @@ import java.util.List;
 
 public interface IDepartementDao {
     
-    void creer(Departement departement) throws SQLException;
+    void creer(Departement departement);
     
-    Departement lireParId(int id) throws SQLException;
-    List<Departement> lireTous() throws SQLException;
+    Departement lireParId(int id);
+    List<Departement> lireTous();
     
-    void mettreAJour(Departement departement) throws SQLException;
+    void mettreAJour(Departement departement);
     
-    void supprimer(int id) throws SQLException;
+    void supprimer(int id);
 }

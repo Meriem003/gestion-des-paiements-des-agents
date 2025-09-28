@@ -42,25 +42,12 @@ CREATE TABLE IF NOT EXISTS paiement (
     FOREIGN KEY (agent_id) REFERENCES agent (id) ON DELETE CASCADE
 );
 
--- Départements
-INSERT INTO departement (nom) VALUES
-('Informatique'),
-('Ressources Humaines'),
-('Comptabilité'),
-('Production');
+-- Insérer le département Administration
+INSERT INTO departement (nom)
+VALUES ('Administration');
 
--- Agents
-INSERT INTO agent (nom, prenom, email, mot_de_passe, type_agent, departement_id, est_responsable_departement) VALUES
-('Dupont', 'Jean', 'jean.dupont@example.com', 'pass123', 'OUVRIER', 4, FALSE),
-('Martin', 'Sophie', 'sophie.martin@example.com', 'pass123', 'RESPONSABLE_DEPARTEMENT', 1, TRUE),
-('Durand', 'Paul', 'paul.durand@example.com', 'pass123', 'DIRECTEUR', 2, FALSE),
-('Leroy', 'Claire', 'claire.leroy@example.com', 'pass123', 'STAGIAIRE', 3, FALSE),
-('Moreau', 'Karim', 'karim.moreau@example.com', 'pass123', 'OUVRIER', 1, FALSE);
+-- Insérer le Directeur lié à ce département
+INSERT INTO agent (nom, prenom, email, mot_de_passe, type_agent, departement_id, est_responsable_departement)
+VALUES ('salhi', 'meryam', 'salhi.meryam@youcode.com', 'admin123', 'DIRECTEUR', 
+        (SELECT id FROM departement WHERE nom = 'Administration' LIMIT 1), TRUE);
 
--- Paiements
-INSERT INTO paiement (type_paiement, montant, date_paiement, motif, condition_validee, agent_id) VALUES
-('SALAIRE', 5000.00, '2025-09-01', 'Salaire mensuel', TRUE, 1),
-('PRIME', 800.00, '2025-09-10', 'Prime de performance', TRUE, 2),
-('BONUS', 1200.00, '2025-09-15', 'Bonus projet terminé', TRUE, 3),
-('INDEMNITE', 300.00, '2025-09-20', 'Indemnité transport', TRUE, 4),
-('SALAIRE', 4500.00, '2025-09-01', 'Salaire mensuel', TRUE, 5);
