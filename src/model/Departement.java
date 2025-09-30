@@ -48,4 +48,14 @@ public class Departement {
     public void setAgents(List<Agent> agents) {
         this.agents = agents;
     }
+
+    @Override
+    public String toString() {
+        return "Departement{" +
+                "id=" + id +
+                ", nom='" + nom + '\'' +
+                ", responsable=" + (responsable != null ? responsable.getPrenom() + " " + responsable.getNom() : "Aucun") +
+                ", nombreAgents=" + (agents != null ? agents.size() : 0) +
+                '}';
+    }
 }

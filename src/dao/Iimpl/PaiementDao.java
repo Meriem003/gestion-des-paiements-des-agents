@@ -29,6 +29,8 @@ public class PaiementDao implements IPaiementDao {
             if (rs.next()) {
                 paiement.setId(rs.getInt(1));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la création du paiement: " + e.getMessage(), e);
         }
     }
 
@@ -41,6 +43,8 @@ public class PaiementDao implements IPaiementDao {
             if (rs.next()) {
                 return mapperPaiement(rs);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la lecture du paiement avec l'ID " + id + ": " + e.getMessage(), e);
         }
         return null;
     }
@@ -54,6 +58,8 @@ public class PaiementDao implements IPaiementDao {
             while (rs.next()) {
                 paiements.add(mapperPaiement(rs));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la lecture de tous les paiements: " + e.getMessage(), e);
         }
         return paiements;
     }
@@ -70,6 +76,8 @@ public class PaiementDao implements IPaiementDao {
             stmt.setInt(6, paiement.getAgent().getId());
             stmt.setInt(7, paiement.getId());
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la mise à jour du paiement: " + e.getMessage(), e);
         }
     }
 
@@ -79,10 +87,28 @@ public class PaiementDao implements IPaiementDao {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la suppression du paiement avec l'ID " + id + ": " + e.getMessage(), e);
         }
     }
 
-    private Paiement mapperPaiement(ResultSet rs){
+    @Override
+    public List<Paiement> findPaiementsByAgentId(int agentId) {
+        List<Paiement> paiements = new ArrayList<>();
+        String sql = "SELECT * FROM paiement WHERE agent_id = ? ORDER BY date_paiement DESC";
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setInt(1, agentId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                paiements.add(mapperPaiement(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la récupération des paiements pour l'agent ID " + agentId + ": " + e.getMessage(), e);
+        }
+        return paiements;
+    }
+
+    private Paiement mapperPaiement(ResultSet rs) throws SQLException {
         Paiement paiement = new Paiement();
         paiement.setId(rs.getInt("id"));        
         String typePaiementStr = rs.getString("type_paiement");

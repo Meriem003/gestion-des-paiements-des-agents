@@ -37,6 +37,8 @@ public class AgentDao implements IAgentDao {
             if (rs.next()) {
                 agent.setId(rs.getInt(1));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la création de l'agent: " + e.getMessage(), e);
         }
     }
 
@@ -50,6 +52,8 @@ public class AgentDao implements IAgentDao {
             if (rs.next()) {
                 return mapperAgent(rs);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la lecture de l'agent avec l'ID " + id + ": " + e.getMessage(), e);
         }
         return null;
     }
@@ -65,6 +69,8 @@ public class AgentDao implements IAgentDao {
             while (rs.next()) {
                 agents.add(mapperAgent(rs));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la lecture de tous les agents: " + e.getMessage(), e);
         }
         return agents;
     }
@@ -88,6 +94,8 @@ public class AgentDao implements IAgentDao {
             stmt.setBoolean(7, agent.isEstResponsableDepartement());
             stmt.setInt(8, agent.getId());
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la mise à jour de l'agent: " + e.getMessage(), e);
         }
     }
 
@@ -97,11 +105,13 @@ public class AgentDao implements IAgentDao {
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la suppression de l'agent avec l'ID " + id + ": " + e.getMessage(), e);
         }
     }
 
    
-    private Agent mapperAgent(ResultSet rs){
+    private Agent mapperAgent(ResultSet rs) throws SQLException {
         Agent agent = new Agent();
         agent.setId(rs.getInt("id"));
         agent.setNom(rs.getString("nom"));
@@ -127,6 +137,9 @@ public class AgentDao implements IAgentDao {
                     departement.setNom(rsDept.getString("nom"));
                     agent.setDepartement(departement);
                 }
+            } catch (SQLException e) {
+                // Log l'erreur mais continue le mapping de l'agent
+                System.err.println("Erreur lors du chargement du département: " + e.getMessage());
             }
         }
         

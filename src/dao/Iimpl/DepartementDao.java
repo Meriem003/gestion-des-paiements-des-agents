@@ -13,6 +13,7 @@ public class DepartementDao implements IDepartementDao {
         this.connection = connection;
     }
 
+    @Override
     public void creer(Departement departement){
         String sql = "INSERT INTO departement (nom) VALUES (?)";
         try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -22,9 +23,12 @@ public class DepartementDao implements IDepartementDao {
             if (rs.next()) {
                 departement.setId(rs.getInt(1));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la création du département: " + e.getMessage(), e);
         }
     }
 
+    @Override
     public Departement lireParId(int id){
         String sql = "SELECT * FROM departement WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -42,10 +46,13 @@ public class DepartementDao implements IDepartementDao {
                 
                 return departement;
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la lecture du département avec l'ID " + id + ": " + e.getMessage(), e);
         }
         return null;
     }
 
+    @Override
     public List<Departement> lireTous(){
         List<Departement> departements = new ArrayList<>();
         String sql = "SELECT * FROM departement ORDER BY nom";
@@ -62,24 +69,32 @@ public class DepartementDao implements IDepartementDao {
                 
                 departements.add(departement);
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la lecture de tous les départements: " + e.getMessage(), e);
         }
         return departements;
     }
 
+    @Override
     public void mettreAJour(Departement departement){
         String sql = "UPDATE departement SET nom = ? WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, departement.getNom());
             stmt.setInt(2, departement.getId());
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la mise à jour du département: " + e.getMessage(), e);
         }
     }
 
+    @Override
     public void supprimer(int id){
         String sql = "DELETE FROM departement WHERE id = ?";
         try (PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setInt(1, id);
             stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la suppression du département avec l'ID " + id + ": " + e.getMessage(), e);
         }
     }
 
@@ -92,6 +107,8 @@ public class DepartementDao implements IDepartementDao {
             if (rs.next()) {
                 return mapperAgent(rs);
             }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération du responsable du département: " + e.getMessage());
         }
         return null;
     }
@@ -107,11 +124,13 @@ public class DepartementDao implements IDepartementDao {
             while (rs.next()) {
                 agents.add(mapperAgent(rs));
             }
+        } catch (SQLException e) {
+            System.err.println("Erreur lors de la récupération des agents du département: " + e.getMessage());
         }
         return agents;
     }
     
-    private Agent mapperAgent(ResultSet rs){
+    private Agent mapperAgent(ResultSet rs) throws SQLException {
         Agent agent = new Agent();
         agent.setId(rs.getInt("id"));
         agent.setNom(rs.getString("nom"));

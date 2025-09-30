@@ -1,11 +1,8 @@
 package service;
-
 import model.Agent;
-import model.Departement;
 import model.Paiement;
 import model.TypePaiement;
 import java.util.List;
-import java.util.Map;
 
 public interface IResponsableService extends IAgentService {
     
@@ -23,9 +20,9 @@ public interface IResponsableService extends IAgentService {
     List<Paiement> consulterPaiementsDepartement(int departementId, int responsableId);
     List<Paiement> filtrerTrierPaiementsDepartement(int departementId, TypePaiement typePaiement, 
                 boolean triParMontant, boolean triParDate, int responsableId);
-                
-    Map<String, Object> calculerStatistiquesDepartement(int departementId, int responsableId);
-    List<Agent> classementAgentsParPaiement(int departementId, int responsableId);
-    Map<Paiement, String> identifierPaiementsInhabituels(int departementId, int responsableId);
-    boolean verifierPermissionsResponsable(int responsableId, int departementId);
+
+    // Map<String, Object> calculerStatistiquesDepartement(int departementId, int responsableId);
+    // List<Agent> classementAgentsParPaiement(int departementId, int responsableId);
+    // Map<Paiement, String> identifierPaiementsInhabituels(int departementId, int responsableId);
+    // boolean verifierPermissionsResponsable(int responsableId, int departementId);
 }

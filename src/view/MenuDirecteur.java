@@ -1,25 +1,15 @@
 package view;
 
 import model.Agent;
-import model.Departement;
-import model.Paiement;
-import model.TypeAgent;
-import model.TypePaiement;
 import java.util.Scanner;
 
-/**
- * Menu console pour le directeur
- * Hérite des fonctionnalités Agent avec des options spécifiques de direction
- */
 public class MenuDirecteur {
     private Scanner scanner;
     private Agent directeurConnecte;
-    private MenuAgent menuAgent;
     
     public MenuDirecteur(Agent directeurConnecte) {
         this.scanner = new Scanner(System.in);
         this.directeurConnecte = directeurConnecte;
-        this.menuAgent = new MenuAgent(directeurConnecte);
     }
 
     public void afficherMenu() {
@@ -57,52 +47,52 @@ public class MenuDirecteur {
             
             switch (choix) {
                 case 1:
-                    menuAgent.afficherMenu();
+                    // menuAgent.afficherMenu();
                     break;
                 case 2:
-                    validerAjoutBonus();
+                    // validerAjoutBonus();
                     break;
                 case 3:
-                    validerAjoutIndemnites();
+                    // validerAjoutIndemnites();
                     break;
                 case 4:
-                    consulterDemandesEnAttente();
+                    // consulterDemandesEnAttente();
                     break;
                 case 5:
-                    consulterRapportGlobal();
+                    // consulterRapportGlobal();
                     break;
                 case 6:
-                    statistiquesParDepartement();
+                    // genererStatistiquesDepartements();
                     break;
                 case 7:
-                    topAgentsMieuxPayes();
+                    // genererTopAgentsMieuxPayes();
                     break;
                 case 8:
-                    repartitionPaiementsParType();
+                    // analyserRepartitionPaiementsParType();
                     break;
                 case 9:
-                    creerDepartement();
+                        // creerDepartement();
                     break;
                 case 10:
-                    modifierDepartement();
+                    // modifierDepartement();
                     break;
                 case 11:
-                    supprimerDepartement();
+                    // supprimerDepartement();
                     break;
                 case 12:
-                    associerResponsableDepartement();
+                    // associerResponsableDepartement();
                     break;
                 case 13:
-                    listerDepartements();
+                    // listerTousDepartements();
                     break;
                 case 14:
-                    gestionUtilisateurs();
+                    // gererUtilisateurs();
                     break;
                 case 15:
-                    auditPaiements();
+                    // effectuerAuditPaiements();
                     break;
                 case 16:
-                    parametresSysteme();
+                    // gererParametresSysteme();
                     break;
                 case 0:
                     System.out.println("Merci d'avoir utilisé notre app - Déconnexion...");
@@ -111,180 +101,5 @@ public class MenuDirecteur {
                     System.out.println("choix invalide");
             }
         } while (choix != 0);
-    }
-
-    private void validerAjoutBonus() {
-        System.out.println("\n=== VALIDATION DE BONUS ===");
-        System.out.println("Liste des demandes de bonus en attente:");        
-        System.out.print("ID de la demande à valider (0 pour annuler): ");
-        int idDemande = scanner.nextInt();
-        
-        if (idDemande != 0) {
-            System.out.println("1. Approuver");
-            System.out.println("2. Rejeter");
-            System.out.print("Votre décision: ");
-            int decision = scanner.nextInt();
-            
-            if (decision == 1) {
-                System.out.println("Bonus approuvé et traité.");
-            } else if (decision == 2) {
-                System.out.print("Motif du rejet: ");
-                scanner.nextLine();
-                String motif = scanner.nextLine();
-                System.out.println("Bonus rejeté. Motif: " + motif);
-            }
-        }
-        attendreEntree();
-    }
-
-    private void validerAjoutIndemnites() {
-        System.out.println("\n=== VALIDATION D'INDEMNITÉS ===");
-        System.out.println("Liste des demandes d'indemnités en attente:");
-        System.out.print("ID de la demande à valider (0 pour annuler): ");
-        int idDemande = scanner.nextInt();
-        
-        if (idDemande != 0) {
-            System.out.println("1. Approuver");
-            System.out.println("2. Rejeter");
-            System.out.print("Votre décision: ");
-            int decision = scanner.nextInt();            
-            if (decision == 1) {
-                System.out.println("Indemnité approuvée et traitée.");
-            } else if (decision == 2) {
-                System.out.print("Motif du rejet: ");
-                scanner.nextLine();
-                String motif = scanner.nextLine();
-                System.out.println("Indemnité rejetée. Motif: " + motif);
-            }
-        }
-        attendreEntree();
-    }
-    
-    private void consulterDemandesEnAttente() {
-        System.out.println("\n=== DEMANDES EN ATTENTE ===");
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-
-    private void consulterRapportGlobal() {
-        System.out.println("\n=== RAPPORT GLOBAL DE L'ENTREPRISE ===");
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void statistiquesParDepartement() {
-        System.out.println("\n=== STATISTIQUES PAR DÉPARTEMENT ===");
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void topAgentsMieuxPayes() {
-        System.out.println("\n=== TOP DES AGENTS LES MIEUX PAYÉS ===");
-        System.out.print("Nombre d'agents à afficher (par défaut 10): ");
-        int nombre = scanner.nextInt();
-        if (nombre <= 0) nombre = 10;        
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void repartitionPaiementsParType() {
-        System.out.println("\n=== RÉPARTITION DES PAIEMENTS PAR TYPE ===");
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void creerDepartement() {
-        System.out.println("\n=== CRÉER UN DÉPARTEMENT ===");
-        System.out.print("Nom du département: ");
-        scanner.nextLine();
-        String nomDepartement = scanner.nextLine();        
-        System.out.println("Département '" + nomDepartement + "' créé avec succès.");
-        attendreEntree();
-    }
-    
-    private void modifierDepartement() {
-        System.out.println("\n=== MODIFIER UN DÉPARTEMENT ===");
-        System.out.print("ID du département à modifier: ");
-        int idDepartement = scanner.nextInt();
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void supprimerDepartement() {
-        System.out.println("\n=== SUPPRIMER UN DÉPARTEMENT ===");
-        System.out.print("ID du département à supprimer: ");
-        int idDepartement = scanner.nextInt();
-        
-        System.out.print("Confirmez-vous la suppression ? (O/N): ");
-        scanner.nextLine();
-        String confirmation = scanner.nextLine();
-        
-        if (confirmation.equalsIgnoreCase("O") || confirmation.equalsIgnoreCase("OUI")) {
-            System.out.println("Département supprimé avec succès.");
-        } else {
-            System.out.println("Suppression annulée.");
-        }
-        attendreEntree();
-    }
-    
-    private void associerResponsableDepartement() {
-        System.out.println("\n=== ASSOCIER UN RESPONSABLE À UN DÉPARTEMENT ===");
-        System.out.print("ID du département: ");
-        int idDepartement = scanner.nextInt();
-        System.out.print("ID du responsable: ");
-        int idResponsable = scanner.nextInt();        
-        System.out.println("Responsable associé avec succès au département.");
-        attendreEntree();
-    }
-    
-    private void listerDepartements() {
-        System.out.println("\n=== LISTE DES DÉPARTEMENTS ===");
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void gestionUtilisateurs() {
-        System.out.println("\n=== GESTION DES UTILISATEURS ===");
-        System.out.println("1. Créer un nouvel agent/responsable");
-        System.out.println("2. Modifier les droits d'un utilisateur");
-        System.out.println("3. Désactiver/Activer un utilisateur");
-        System.out.println("4. Réinitialiser le mot de passe");
-        System.out.print("Votre choix: ");
-        
-        int choix = scanner.nextInt();
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void auditPaiements() {
-        System.out.println("\n=== AUDIT DES PAIEMENTS ===");
-        System.out.println("1. Paiements suspects ou anormaux");
-        System.out.println("2. Historique des modifications");
-        System.out.println("3. Paiements par période");
-        System.out.println("4. Rapport d'audit complet");
-        System.out.print("Votre choix: ");
-        
-        int choix = scanner.nextInt();
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void parametresSysteme() {
-        System.out.println("\n=== PARAMÈTRES SYSTÈME ===");
-        System.out.println("1. Seuils de validation des paiements");
-        System.out.println("2. Configuration des notifications");
-        System.out.println("3. Sauvegarde/Restauration");
-        System.out.println("4. Paramètres de sécurité");
-        System.out.print("Votre choix: ");
-        
-        int choix = scanner.nextInt();
-        System.out.println("Fonctionnalité en cours de développement...");
-        attendreEntree();
-    }
-    
-    private void attendreEntree() {
-        System.out.print("\nAppuyez sur Entrée pour continuer...");
-        scanner.nextLine();
-        scanner.nextLine();
     }
 }
