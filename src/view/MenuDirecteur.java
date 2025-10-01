@@ -1,25 +1,29 @@
 package view;
 
 import model.Agent;
+import controller.DirecteurController;
+import service.IDirecteurService;
 import java.util.Scanner;
 
 public class MenuDirecteur {
     private Scanner scanner;
     private Agent directeurConnecte;
+    private DirecteurController directeurController;
     
-    public MenuDirecteur(Agent directeurConnecte) {
+    public MenuDirecteur(Agent directeurConnecte, IDirecteurService directeurService) {
         this.scanner = new Scanner(System.in);
         this.directeurConnecte = directeurConnecte;
+        this.directeurController = new DirecteurController(directeurService);
     }
 
     public void afficherMenu() {
         int choix = 0;
         do {
-            System.out.println("\n=== MENU DIRECTEUR ===");
+            System.out.println("=============== MENU DIRECTEUR ===============");
             System.out.println("Connecté en tant que: " + directeurConnecte.getNom() + " " + directeurConnecte.getPrenom());
             System.out.println("Statut: DIRECTEUR");
             System.out.println("--- Mes options personnelles ---");
-            System.out.println("1. Accéder au menu Agent (mes informations)");
+            System.out.println("1. Accéder a mes informations ");
             System.out.println("--- Validation des paiements ---");
             System.out.println("2. Valider l'ajout de bonus");
             System.out.println("3. Valider l'ajout d'indemnités");
@@ -47,59 +51,88 @@ public class MenuDirecteur {
             
             switch (choix) {
                 case 1:
-                    // menuAgent.afficherMenu();
+                    directeurController.accederMenuAgent(directeurConnecte);
                     break;
                 case 2:
-                    // validerAjoutBonus();
+                    directeurController.validerAjoutBonus(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 3:
-                    // validerAjoutIndemnites();
+                    directeurController.validerAjoutIndemnites(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 4:
-                    // consulterDemandesEnAttente();
+                    directeurController.consulterDemandesEnAttente(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 5:
-                    // consulterRapportGlobal();
+                    System.out.println("⚠️ Fonctionnalité en développement : Rapport global");
+                    attendreEntree();
                     break;
                 case 6:
-                    // genererStatistiquesDepartements();
+                    System.out.println("⚠️ Fonctionnalité en développement : Statistiques par département");
+                    attendreEntree();
                     break;
                 case 7:
-                    // genererTopAgentsMieuxPayes();
+                    System.out.println("⚠️ Fonctionnalité en développement : Top des agents les mieux payés");
+                    attendreEntree();
                     break;
                 case 8:
-                    // analyserRepartitionPaiementsParType();
+                    System.out.println("⚠️ Fonctionnalité en développement : Répartition des paiements par type");
+                    attendreEntree();
                     break;
                 case 9:
-                        // creerDepartement();
+                    directeurController.creerDepartement(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 10:
-                    // modifierDepartement();
+                    directeurController.modifierDepartement(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 11:
-                    // supprimerDepartement();
+                    directeurController.supprimerDepartement(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 12:
-                    // associerResponsableDepartement();
+                    directeurController.associerResponsableDepartement(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 13:
-                    // listerTousDepartements();
+                    directeurController.listerTousDepartements(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 14:
-                    // gererUtilisateurs();
+                    directeurController.gererUtilisateurs(directeurConnecte.getId());
+                    attendreEntree();
                     break;
                 case 15:
-                    // effectuerAuditPaiements();
+                    System.out.println("⚠️ Fonctionnalité en développement : Audit des paiements");
+                    attendreEntree();
                     break;
                 case 16:
-                    // gererParametresSysteme();
+                    System.out.println("⚠️ Fonctionnalité en développement : Paramètres système");
+                    attendreEntree();
                     break;
                 case 0:
-                    System.out.println("Merci d'avoir utilisé notre app - Déconnexion...");
+                    System.out.println("Merci d'avoir utilisé notre application - Déconnexion...");
                     break;
                 default:
-                    System.out.println("choix invalide");
+                    System.out.println("Choix invalide. Veuillez choisir un nombre entre 0 et 16.");
             }
         } while (choix != 0);
+    }
+
+    private void attendreEntree() {
+        System.out.println("\nAppuyez sur Entrée pour continuer...");
+        scanner.nextLine();
+    }
+
+    // Getters et setters
+    public Agent getDirecteurConnecte() {
+        return directeurConnecte;
+    }
+
+    public void setDirecteurConnecte(Agent directeurConnecte) {
+        this.directeurConnecte = directeurConnecte;
     }
 }

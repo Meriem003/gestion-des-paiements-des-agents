@@ -10,11 +10,6 @@ public interface IDirecteurService extends IAgentService {
     boolean validerDemandeIndemnite(int demandeId, boolean approuve, String motifRejet, int directeurId);
     List<Map<String, Object>> consulterDemandesEnAttente(int directeurId);
 
-    // Map<String, Object> genererRapportGlobal(int directeurId);
-    // Map<Departement, Map<String, Object>> calculerStatistiquesParDepartement(int directeurId);
-    // List<Agent> genererTopAgentsMieuxPayes(int nombreAgents, int directeurId);
-    // Map<TypePaiement, Map<String, Object>> calculerRepartitionPaiementsParType(int directeurId);
-
     Departement creerDepartement(Departement departement, int directeurId);
     Departement modifierDepartement(Departement departement, int directeurId);
     boolean supprimerDepartement(int departementId, int directeurId);
@@ -32,5 +27,11 @@ public interface IDirecteurService extends IAgentService {
     // Map<String, Object> genererRapportAuditComplet(java.util.Date periodeDebut, java.util.Date periodeFin, int directeurId);
     // boolean configurerSeuilsValidation(double seuilBonus, double seuilIndemnite, int directeurId);
     // boolean sauvegarderDonnees(int directeurId);
+
+    // Map<String, Object> genererRapportGlobal(int directeurId);
+    // Map<Departement, Map<String, Object>> calculerStatistiquesParDepartement(int directeurId);
+    // List<Agent> genererTopAgentsMieuxPayes(int nombreAgents, int directeurId);
+    // Map<TypePaiement, Map<String, Object>> calculerRepartitionPaiementsParType(int directeurId);
+    
      boolean verifierPermissionsDirecteur(int directeurId);
 }

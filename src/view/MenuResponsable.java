@@ -1,15 +1,18 @@
 package view;
 import model.Agent;
-
+import controller.ResponsableController;
+import service.IResponsableService;
 import java.util.Scanner;
 
 public class MenuResponsable {
     private Scanner scanner;
     private Agent responsableConnecte;
+    private ResponsableController responsableController;
     
-    public MenuResponsable(Agent responsableConnecte) {
+    public MenuResponsable(Agent responsableConnecte, IResponsableService responsableService) {
         this.scanner = new Scanner(System.in);
         this.responsableConnecte = responsableConnecte;
+        this.responsableController = new ResponsableController(responsableService);
     }
 
     public void afficherMenu() {
@@ -46,47 +49,90 @@ public class MenuResponsable {
             
             switch (choix) {
                 case 1:
-                    // menuAgent.afficherMenu();
+                    responsableController.accederMenuAgent(responsableConnecte);
                     break;
                 case 2:
-                    // ajouterAgent();
+                    responsableController.ajouterAgent(responsableConnecte.getId());
+                    attendreEntree();
                     break;
                 case 3:
-                    // modifierAgent();
+                    responsableController.modifierAgent(responsableConnecte.getId());
+                    attendreEntree();
                     break;
                 case 4:
-                    // supprimerAgent();
+                    responsableController.supprimerAgent(responsableConnecte.getId());
+                    attendreEntree();
                     break;
                 case 5:
-                    // affecterAgentDepartement();
+                    responsableController.affecterAgentDepartement(responsableConnecte.getId());
+                    attendreEntree();
                     break;
                 case 6:
-                    // ajouterPaiementAgent();
+                    responsableController.ajouterPaiementAgent(responsableConnecte.getId());
+                    attendreEntree();
                     break;
                 case 7:
-                    // consulterPaiementsAgent();
+                    responsableController.consulterPaiementsAgent(responsableConnecte.getId());
+                    attendreEntree();
                     break;
                 case 8:
-                    // consulterPaiementsDepartement();
+                    int departementId = responsableConnecte.getDepartement() != null ? 
+                        responsableConnecte.getDepartement().getId() : 0;
+                    if (departementId > 0) {
+                        responsableController.consulterPaiementsDepartement(responsableConnecte.getId(), departementId);
+                    } else {
+                        System.out.println("❌ Vous n'êtes assigné à aucun département.");
+                    }
+                    attendreEntree();
                     break;
                 case 9:
-                    // filtrerTrierPaiementsDepartement();
+                    int deptId = responsableConnecte.getDepartement() != null ? 
+                        responsableConnecte.getDepartement().getId() : 0;
+                    if (deptId > 0) {
+                        responsableController.filtrerTrierPaiementsDepartement(responsableConnecte.getId(), deptId);
+                    } else {
+                        System.out.println("❌ Vous n'êtes assigné à aucun département.");
+                    }
+                    attendreEntree();
                     break;
                 case 10:
-                    // calculerStatistiquesDepartement();
+                    int depId = responsableConnecte.getDepartement() != null ? 
+                        responsableConnecte.getDepartement().getId() : 0;
+                    responsableController.calculerStatistiquesDepartement(responsableConnecte.getId(), depId);
+                    attendreEntree();
                     break;
                 case 11:
-                    // classementAgents();
+                    int dId = responsableConnecte.getDepartement() != null ? 
+                        responsableConnecte.getDepartement().getId() : 0;
+                    responsableController.classementAgents(responsableConnecte.getId(), dId);
+                    attendreEntree();
                     break;
                 case 12:
-                    // identifierPaiementsInhabituels();
+                    int deptID = responsableConnecte.getDepartement() != null ? 
+                        responsableConnecte.getDepartement().getId() : 0;
+                    responsableController.identifierPaiementsInhabituels(responsableConnecte.getId(), deptID);
+                    attendreEntree();
                     break;
                 case 0:
-                    System.out.println("Merci d'avoir utilisé notre app - Déconnexion...");
+                    System.out.println("Merci d'avoir utilisé notre application - Déconnexion...");
                     break;
                 default:
-                    System.out.println("choix invalide");
+                    System.out.println("Choix invalide. Veuillez choisir un nombre entre 0 et 12.");
             }
         } while (choix != 0);
+    }
+
+    private void attendreEntree() {
+        System.out.println("\nAppuyez sur Entrée pour continuer...");
+        scanner.nextLine();
+    }
+
+    // Getters et setters
+    public Agent getResponsableConnecte() {
+        return responsableConnecte;
+    }
+
+    public void setResponsableConnecte(Agent responsableConnecte) {
+        this.responsableConnecte = responsableConnecte;
     }
 }
