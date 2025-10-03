@@ -1,126 +1,107 @@
 package view;
 import model.Agent;
 import controller.AgentController;
+import controller.PaiementController;
 import service.IAgentService;
+import service.IPaiementService;
+import service.Iimpl.PaiementServiceImpl;
 import java.util.Scanner;
 
 public class MenuAgent {
     private Scanner scanner;
     private Agent agentConnecte;
     private AgentController agentController;
+    private PaiementController paiementController;
     
     public MenuAgent(Agent agentConnecte, IAgentService agentService) {
         this.scanner = new Scanner(System.in);
         this.agentConnecte = agentConnecte;
-        this.agentController = new AgentController(agentService);
+        this.agentController = new AgentController(agentService);        
+        this.paiementController = new PaiementController(new PaiementServiceImpl(), agentService);
     }
     public void afficherMenu() {
-        int choix = 0;
+        int choix;
         do {
+            afficherOptionsMenu();
             try {
-                afficherOptionsMenu();
-                choix = obtenirChoixUtilisateur();
+                choix = scanner.nextInt();
+                scanner.nextLine();
                 traiterChoix(choix);
             } catch (Exception e) {
-                System.err.println("Erreur dans le menu : " + e.getMessage());
-                scanner.nextLine();
+                System.out.println("❌ Erreur de saisie. Veuillez entrer un nombre valide.");
+                scanner.nextLine(); // Nettoyer le buffer
+                choix = -1; // Forcer la continuité de la boucle
             }
         } while (choix != 0);
     }
 
     private void afficherOptionsMenu() {
-        System.out.println("\n=== MENU AGENT ===");
-        System.out.println("Connecté en tant que: " + agentConnecte.getNom() + " " + agentConnecte.getPrenom());
-        System.out.println("Type: " + agentConnecte.getTypeAgent());
-        System.out.println("--- Mes informations ---");
-        System.out.println("1. Consulter mes informations personnelles");
-        System.out.println("2. Modifier mes informations personnelles");
-        System.out.println("3. Consulter mon département");
-        System.out.println("--- Mes paiements ---");
-        System.out.println("4. Consulter l'historique de mes paiements");
-        System.out.println("5. Filtrer et trier mes paiements");
-        System.out.println("6. Calculer le total de mes paiements");
-        System.out.println("--- Mes statistiques ---");
-        System.out.println("7. Consulter mon salaire annuel total");
-        System.out.println("8. Consulter le nombre de primes/bonus/indemnités reçus");
-        System.out.println("9. Voir mon paiement le plus élevé et le plus faible");
-        System.out.println("10. Afficher mes statistiques complètes");
-        System.out.println("===========================");
-        System.out.println("0. Déconnexion");
-        System.out.print("Choix : ");
-    }
-
-    private int obtenirChoixUtilisateur() {
-        int choix = scanner.nextInt();
-        scanner.nextLine(); 
-        return choix;
+        System.out.println("\n============ MENU AGENT ============");
+        System.out.println("👤 Connecté: " + agentConnecte.getNom() + " " + agentConnecte.getPrenom());
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("1. 📋 Mes informations");
+        System.out.println("2. 💰 Mes paiements");
+        System.out.println("3. 🏷️  Paiements par type");
+        System.out.println("4. 🧮 Calculer salaire");
+        System.out.println("5. 📊 Trier paiements");
+        System.out.println("6. 🎁 Nombre de primes");
+        System.out.println("7. 📈 Paiements extrêmes");
+        System.out.println("8. 📋 Statistiques");
+        System.out.println("0. 🚪 Déconnexion");
+        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.print("Votre choix : ");
     }
 
     private void traiterChoix(int choix) {
-        switch (choix) {
-            case 1:
-                agentController.consulterInformationsPersonnelles(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 2:
-                agentController.modifierInformationsPersonnelles(agentConnecte.getId());
-                rafraichirAgentConnecte();
-                attendreEntree();
-                break;
-            case 3:
-                agentController.consulterDepartement(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 4:
-                agentController.consulterHistoriquePaiements(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 5:
-                agentController.filtrerEtTrierPaiements(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 6:
-                agentController.calculerTotalPaiements(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 7:
-                agentController.consulterSalaireAnnuel(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 8:
-                agentController.consulterNombrePrimesBonus(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 9:
-                agentController.consulterPaiementExtremes(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 10:
-                agentController.afficherStatistiquesCompletes(agentConnecte.getId());
-                attendreEntree();
-                break;
-            case 0:
-                System.out.println("Merci d'avoir utilisé notre application - Déconnexion...");
-                break;
-            default:
-                System.out.println("Choix invalide. Veuillez choisir un nombre entre 0 et 10.");
+        try {
+            switch (choix) {
+                case 1:
+                    System.out.println("\n📋 Consultation de vos informations personnelles...");
+                    agentController.consulterInformationsPersonnelles(agentConnecte.getId());
+                    break;
+                case 2:
+                    System.out.println("\n💰 Consultation de vos paiements...");
+                    paiementController.consulterMesPaiements(agentConnecte.getId());
+                    break;
+                case 3:
+                    System.out.println("\n🏷️  Consultation de vos paiements par type...");
+                    paiementController.consulterMesPaiementsParType(agentConnecte.getId());
+                    break;
+                case 4:
+                    System.out.println("\n🧮 Calcul de votre salaire...");
+                    paiementController.calculerSalairePeriode(agentConnecte.getId());
+                    break;
+                case 5:
+                    System.out.println("\n📊 Tri de vos paiements...");
+                    paiementController.trierMesPaiements(agentConnecte.getId());
+                    break;
+                case 6:
+                    System.out.println("\n🎁 Consultation du nombre de primes et bonus...");
+                    agentController.consulterNombrePrimesBonus(agentConnecte.getId());
+                    break;
+                case 7:
+                    System.out.println("\n📈 Consultation des paiements extrêmes...");
+                    agentController.consulterPaiementExtremes(agentConnecte.getId());
+                    break;
+                case 8:
+                    System.out.println("\n📋 Affichage des statistiques complètes...");
+                    agentController.afficherStatistiquesCompletes(agentConnecte.getId());
+                    break;
+                case 0:
+                    System.out.println("🚪 Déconnexion en cours...");
+                    System.out.println("À bientôt " + agentConnecte.getPrenom() + " !");
+                    break;
+                default:
+                    System.out.println("❌ Choix invalide. Veuillez choisir une option entre 0 et 8.");
+            }
+        } catch (Exception e) {
+            System.err.println("❌ Erreur lors de l'exécution de l'opération: " + e.getMessage());
+            System.out.println("Veuillez réessayer ou contacter l'administrateur si le problème persiste.");
         }
-    }
-
-    private void attendreEntree() {
-        System.out.println("\nAppuyez sur Entrée pour continuer...");
-        scanner.nextLine();
-    }
-
-    private void rafraichirAgentConnecte() {
-        System.out.println("Informations mises à jour.");
-    }
-
-    public Agent getAgentConnecte() {
-        return agentConnecte;
-    }
-
-    public void setAgentConnecte(Agent agentConnecte) {
-        this.agentConnecte = agentConnecte;
+        
+        if (choix != 0) {
+            System.out.println("\n⏎ Appuyez sur Entrée pour continuer...");
+            scanner.nextLine();
+        }
     }
 }

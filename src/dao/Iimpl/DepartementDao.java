@@ -6,9 +6,15 @@ import model.Agent;
 import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
+import utils.DBConnection;
 
 public class DepartementDao implements IDepartementDao {
     private Connection connection;
+    
+    public DepartementDao() {
+        this.connection = DBConnection.getInstance().getConnection();
+    }
+    
     public DepartementDao(Connection connection) {
         this.connection = connection;
     }

@@ -141,7 +141,7 @@ ALTER TABLE `departement`
 -- AUTO_INCREMENT for table `paiement`
 --
 ALTER TABLE `paiement`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

@@ -7,9 +7,15 @@ import model.Departement;
 import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
+import utils.DBConnection;
 
 public class AgentDao implements IAgentDao {
     private Connection connection;
+    
+    public AgentDao() {
+        this.connection = DBConnection.getInstance().getConnection();
+    }
+    
     public AgentDao(Connection connection) {
         this.connection = connection;
     }
@@ -144,5 +150,44 @@ public class AgentDao implements IAgentDao {
         }
         
         return agent;
+    }
+    
+    @Override
+    public Agent authentifier(String email, String motDePasse) {
+        String sql = "SELECT a.id, a.nom, a.prenom, a.email, a.mot_de_passe, a.type_agent, a.est_responsable_departement, " +
+                     "d.id as dept_id, d.nom as dept_nom " +
+                     "FROM agent a " +
+                     "LEFT JOIN departement d ON a.departement_id = d.id " +
+                     "WHERE a.email = ? AND a.mot_de_passe = ?";
+        
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setString(2, motDePasse);
+            
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Agent agent = new Agent();
+                agent.setId(rs.getInt("id"));
+                agent.setNom(rs.getString("nom"));
+                agent.setPrenom(rs.getString("prenom"));
+                agent.setEmail(rs.getString("email"));
+                agent.setMotDePasse(rs.getString("mot_de_passe"));
+                agent.setTypeAgent(TypeAgent.valueOf(rs.getString("type_agent")));
+                agent.setEstResponsableDepartement(rs.getBoolean("est_responsable_departement"));
+                
+                // Charger le département si il existe
+                if (rs.getInt("dept_id") != 0) {
+                    Departement dept = new Departement();
+                    dept.setId(rs.getInt("dept_id"));
+                    dept.setNom(rs.getString("dept_nom"));
+                    agent.setDepartement(dept);
+                }
+                
+                return agent;
+            }
+            return null;
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de l'authentification: " + e.getMessage(), e);
+        }
     }
 }

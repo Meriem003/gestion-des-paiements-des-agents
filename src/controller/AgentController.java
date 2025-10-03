@@ -5,6 +5,7 @@ import model.Departement;
 import model.Paiement;
 import model.TypePaiement;
 import service.IAgentService;
+import service.Iimpl.AgentServiceImpl;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -33,87 +34,6 @@ public class AgentController {
         }
     }
 
-    public void modifierInformationsPersonnelles(int agentId) {
-        try {
-            System.out.println("\n=== MODIFICATION DES INFORMATIONS PERSONNELLES ===");
-            Agent agent = agentService.obtenirInformationsAgent(agentId);
-
-            if (agent == null) {
-                System.out.println("Erreur : Agent introuvable.");
-                return;
-            }
-
-            System.out.println("Informations actuelles :");
-            System.out.println("Nom : " + agent.getNom());
-            System.out.println("Prénom : " + agent.getPrenom());
-            System.out.println("Email : " + agent.getEmail());
-
-            System.out.println("\nQue souhaitez-vous modifier ?");
-            System.out.println("1. Nom");
-            System.out.println("2. Prénom");
-            System.out.println("3. Email");
-            System.out.println("0. Annuler");
-            System.out.print("Choix : ");
-
-            int choix = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (choix) {
-                case 1:
-                    System.out.print("Nouveau nom : ");
-                    String nouveauNom = scanner.nextLine();
-                    agent.setNom(nouveauNom);
-                    break;
-                case 2:
-                    System.out.print("Nouveau prénom : ");
-                    String nouveauPrenom = scanner.nextLine();
-                    agent.setPrenom(nouveauPrenom);
-                    break;
-                case 3:
-                    System.out.print("Nouvel email : ");
-                    String nouvelEmail = scanner.nextLine();
-                    agent.setEmail(nouvelEmail);
-                    break;
-                case 0:
-                    System.out.println("Modification annulée.");
-                    return;
-                default:
-                    System.out.println("Choix invalide.");
-                    return;
-            }
-
-            Agent agentModifie = agentService.mettreAJourInformationsAgent(agent);
-            if (agentModifie != null) {
-                System.out.println("Informations modifiées avec succès !");
-            } else {
-                System.out.println("Erreur lors de la modification.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la modification : " + e.getMessage());
-        }
-    }
-
-
-    public void consulterDepartement(int agentId) {
-        try {
-            System.out.println("\n=== CONSULTATION DU DÉPARTEMENT ===");
-            Departement departement = agentService.obtenirDepartementAgent(agentId);
-
-            if (departement != null) {
-                System.out.println("Informations du département :");
-                System.out.println("ID : " + departement.getId());
-                System.out.println("Nom : " + departement.getNom());
-                if (departement.getResponsable() != null) {
-                    System.out.println("Responsable : " + departement.getResponsable().getNom() + " " + departement.getResponsable().getPrenom());
-                }
-            } else {
-                System.out.println("Aucun département assigné ou département introuvable.");
-            }
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la consultation du département : " + e.getMessage());
-        }
-    }
 
     public void consulterHistoriquePaiements(int agentId) {
         try {

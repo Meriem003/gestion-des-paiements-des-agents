@@ -15,9 +15,9 @@ import java.util.stream.Collectors;
 import java.time.LocalDate;
 
 public class AgentServiceImpl implements IAgentService {
-    private AgentDao agentDao;
-    private PaiementDao paiementDao;
-    private DepartementDao departementDao;
+    protected AgentDao agentDao;
+    protected PaiementDao paiementDao;
+    protected DepartementDao departementDao;
 
     public AgentServiceImpl(AgentDao agentDao, PaiementDao paiementDao, DepartementDao departementDao) {
         this.agentDao = agentDao;
@@ -28,10 +28,6 @@ public class AgentServiceImpl implements IAgentService {
     @Override
     public Agent obtenirInformationsAgent(int agentId) {
         try {
-            if (agentId <= 0) {
-                System.err.println("ID d'agent invalide: " + agentId);
-                return null;
-            }
             Agent agent = agentDao.lireParId(agentId);
             if (agent == null) {
                 System.err.println("Agent introuvable avec l'ID: " + agentId);
@@ -57,95 +53,8 @@ public class AgentServiceImpl implements IAgentService {
     }
 
     @Override
-    public Agent mettreAJourInformationsAgent(Agent agent) {
-        try {
-            if (agent == null) {
-                System.err.println("Agent ne peut pas être null");
-                return null;
-            }
-            if (agent.getId() <= 0) {
-                System.err.println("ID d'agent invalide: " + agent.getId());
-                return null;
-            }
-            Agent agentExistant = agentDao.lireParId(agent.getId());
-            if (agentExistant == null) {
-                System.err.println("Agent introuvable avec l'ID: " + agent.getId());
-                return null;
-            }
-            if (agent.getNom() == null || agent.getNom().trim().isEmpty()) {
-                System.err.println("Le nom de l'agent est obligatoire");
-                return null;
-            }
-            if (agent.getPrenom() == null || agent.getPrenom().trim().isEmpty()) {
-                System.err.println("Le prénom de l'agent est obligatoire");
-                return null;
-            }
-            if (agent.getEmail() == null || agent.getEmail().trim().isEmpty()) {
-                System.err.println("L'email de l'agent est obligatoire");
-                return null;
-            }
-            agentDao.mettreAJour(agent);
-            System.out.println("Informations de l'agent '" + agent.getPrenom() + " " + agent.getNom() + "' mises à jour avec succès");
-            return agentDao.lireParId(agent.getId());
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la mise à jour des informations de l'agent: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
-    public Departement obtenirDepartementAgent(int agentId) {
-        try {
-            if (agentId <= 0) {
-                System.err.println("ID d'agent invalide: " + agentId);
-                return null;
-            }
-            Agent agent = agentDao.lireParId(agentId);
-            if (agent == null) {
-                System.err.println("Agent introuvable avec l'ID: " + agentId);
-                return null;
-            }
-            Departement departement = agent.getDepartement();
-            if (departement == null) {
-                System.out.println("=== DÉPARTEMENT DE L'AGENT ===");
-                System.out.println("Agent: " + agent.getPrenom() + " " + agent.getNom());
-                System.out.println("Département: Non assigné à un département");
-                return null;
-            }
-            Departement departementComplet = departementDao.lireParId(departement.getId());
-            if (departementComplet != null) {
-                System.out.println("=== DÉPARTEMENT DE L'AGENT ===");
-                System.out.println("Agent: " + agent.getPrenom() + " " + agent.getNom());
-                System.out.println("Département: " + departementComplet.getNom() + " (ID: " + departementComplet.getId() + ")");
-
-                if (departementComplet.getResponsable() != null) {
-                    System.out.println("Responsable du département: " +
-                            departementComplet.getResponsable().getPrenom() + " " +
-                            departementComplet.getResponsable().getNom());
-                } else {
-                    System.out.println("Responsable du département: Aucun responsable assigné");
-                }
-                if (departementComplet.getAgents() != null) {
-                    System.out.println("Nombre total d'agents dans le département: " + departementComplet.getAgents().size());
-                } else {
-                    System.out.println("Nombre total d'agents dans le département: 0");
-                }
-                return departementComplet;
-            }
-            return departement;
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la récupération du département de l'agent: " + e.getMessage());
-            return null;
-        }
-    }
-
-    @Override
     public List<Paiement> obtenirHistoriquePaiements(int agentId) {
         try {
-            if (agentId <= 0) {
-                System.err.println("ID d'agent invalide: " + agentId);
-                return null;
-            }
             Agent agent = agentDao.lireParId(agentId);
             if (agent == null) {
                 System.err.println("Agent introuvable avec l'ID: " + agentId);
@@ -187,10 +96,6 @@ public class AgentServiceImpl implements IAgentService {
     @Override
     public List<Paiement> filtrerPaiementsParType(int agentId, TypePaiement typePaiement) {
         try {
-            if (agentId <= 0) {
-                System.err.println("ID d'agent invalide: " + agentId);
-                return null;
-            }
             if (typePaiement == null) {
                 System.err.println("Type de paiement ne peut pas être null");
                 return null;
@@ -245,10 +150,6 @@ public class AgentServiceImpl implements IAgentService {
     @Override
     public List<Paiement> trierPaiementsParMontant(int agentId, boolean croissant) {
         try {
-            if (agentId <= 0) {
-                System.err.println("ID d'agent invalide: " + agentId);
-                return null;
-            }
 
             Agent agent = agentDao.lireParId(agentId);
             if (agent == null) {
@@ -300,10 +201,6 @@ public class AgentServiceImpl implements IAgentService {
     @Override
     public List<Paiement> trierPaiementsParDate(int agentId, boolean plusRecent) {
         try {
-            if (agentId <= 0) {
-                System.err.println("ID d'agent invalide: " + agentId);
-                return null;
-            }
 
             Agent agent = agentDao.lireParId(agentId);
             if (agent == null) {
@@ -705,6 +602,33 @@ public class AgentServiceImpl implements IAgentService {
             System.err.println("Erreur lors de la génération des statistiques complètes: " + e.getMessage());
             e.printStackTrace();
             return new HashMap<>();
+        }
+    }
+    
+    @Override
+    public Agent authentifier(String email, String motDePasse) {
+        try {
+            if (email == null || email.trim().isEmpty()) {
+                System.err.println("Email ne peut pas être vide");
+                return null;
+            }
+            if (motDePasse == null || motDePasse.trim().isEmpty()) {
+                System.err.println("Mot de passe ne peut pas être vide");
+                return null;
+            }
+            
+            Agent agent = agentDao.authentifier(email.trim(), motDePasse);
+            if (agent == null) {
+                System.out.println("❌ Échec de l'authentification. Vérifiez vos identifiants.");
+                return null;
+            }
+            
+            System.out.println("✅ Authentification réussie pour: " + agent.getEmail());
+            return agent;
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'authentification: " + e.getMessage());
+            return null;
         }
     }
 }

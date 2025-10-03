@@ -8,16 +8,28 @@ import model.TypePaiement;
 import service.IResponsableService;
 import service.IAgentService;
 import view.MenuAgent;
+import service.IPaiementService;
+import service.Iimpl.PaiementServiceImpl;
+import service.Iimpl.ResponsableServiceImpl;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Map;
 import java.math.BigDecimal;
 
 public class ResponsableController {
     private IResponsableService responsableService;
+    private IPaiementService paiementService;
     private Scanner scanner;
+
+    public ResponsableController(IResponsableService responsableService, IPaiementService paiementService) {
+        this.responsableService = responsableService;
+        this.paiementService = paiementService;
+        this.scanner = new Scanner(System.in);
+    }
 
     public ResponsableController(IResponsableService responsableService) {
         this.responsableService = responsableService;
+        this.paiementService = new PaiementServiceImpl();
         this.scanner = new Scanner(System.in);
     }
 
@@ -203,7 +215,7 @@ public class ResponsableController {
             System.out.print("ID du département : ");
             int departementId = scanner.nextInt();
             scanner.nextLine(); 
-            boolean affecte = responsableService.affecterAgentDepartement(agentId, departementId, responsableId);
+            boolean affecte = ((ResponsableServiceImpl) responsableService).affecterAgentDepartement(agentId, departementId, responsableId);
 
             if (affecte) {
                 System.out.println("Agent affecté au département avec succès !");
@@ -227,12 +239,11 @@ public class ResponsableController {
             System.out.print("Montant du salaire : ");
             double montant = scanner.nextDouble();
             scanner.nextLine(); 
-            Paiement salaire = responsableService.ajouterSalaire(agentId, montant, responsableId);
 
-            if (salaire != null) {
+            if (((service.Iimpl.ResponsableServiceImpl) responsableService)
+                    .traiterPaiementAvecControles(agentId, TypePaiement.SALAIRE, montant, responsableId) != null) {
                 System.out.println("Salaire ajouté avec succès !");
-                System.out.println("ID du paiement : " + salaire.getId());
-                System.out.println("Montant : " + salaire.getMontant() + " DH");
+                System.out.println("Montant : " + montant + " DH");
             } else {
                 System.out.println("Erreur lors de l'ajout du salaire.");
             }
@@ -253,12 +264,11 @@ public class ResponsableController {
             System.out.print("Montant de la prime : ");
             double montant = scanner.nextDouble();
             scanner.nextLine(); 
-            Paiement prime = responsableService.ajouterPrime(agentId, montant, responsableId);
 
-            if (prime != null) {
+            if (((service.Iimpl.ResponsableServiceImpl) responsableService)
+                    .traiterPaiementAvecControles(agentId, TypePaiement.PRIME, montant, responsableId) != null) {
                 System.out.println("Prime ajoutée avec succès !");
-                System.out.println("ID du paiement : " + prime.getId());
-                System.out.println("Montant : " + prime.getMontant() + " DH");
+                System.out.println("Montant : " + montant + " DH");
             } else {
                 System.out.println("Erreur lors de l'ajout de la prime.");
             }
@@ -269,424 +279,194 @@ public class ResponsableController {
         }
     }
 
-    public void demanderBonus(int responsableId) {
-        try {
-            System.out.println("\n=== DEMANDE DE BONUS ===");
-
-            System.out.print("ID de l'agent : ");
-            int agentId = scanner.nextInt();
-
-            System.out.print("Montant du bonus demandé : ");
-            double montant = scanner.nextDouble();
-            scanner.nextLine(); 
-            int demandeId = responsableService.demanderBonus(agentId, montant, responsableId);
-
-            if (demandeId > 0) {
-                System.out.println("Demande de bonus soumise avec succès !");
-                System.out.println("ID de la demande : " + demandeId);
-                System.out.println("Montant demandé : " + montant + " DH");
-                System.out.println("Statut : En attente de validation");
-            } else {
-                System.out.println("Erreur lors de la soumission de la demande de bonus.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la demande de bonus : " + e.getMessage());
-            scanner.nextLine();
-        }
-    }
-
-    public void demanderIndemnite(int responsableId) {
-        try {
-            System.out.println("\n=== DEMANDE D'INDEMNITÉ ===");
-
-            System.out.print("ID de l'agent : ");
-            int agentId = scanner.nextInt();
-
-            System.out.print("Montant de l'indemnité demandée : ");
-            double montant = scanner.nextDouble();
-            scanner.nextLine(); 
-            int demandeId = responsableService.demanderIndemnite(agentId, montant, responsableId);
-
-            if (demandeId > 0) {
-                System.out.println("Demande d'indemnité soumise avec succès !");
-                System.out.println("ID de la demande : " + demandeId);
-                System.out.println("Montant demandé : " + montant + " DH");
-                System.out.println("Statut : En attente de validation");
-            } else {
-                System.out.println("Erreur lors de la soumission de la demande d'indemnité.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la demande d'indemnité : " + e.getMessage());
-            scanner.nextLine();
-        }
-    }
-
-    public void consulterPaiementsAgent(int responsableId) {
-        try {
-            System.out.println("\n=== CONSULTATION DES PAIEMENTS D'UN AGENT ===");
-
-            System.out.print("ID de l'agent : ");
-            int agentId = scanner.nextInt();
-            scanner.nextLine(); 
-            List<Paiement> paiements = responsableService.consulterPaiementsAgent(agentId, responsableId);
-
-            if (paiements != null && !paiements.isEmpty()) {
-                System.out.println("\nPaiements de l'agent ID " + agentId + " :");
-                System.out.println("+---------+---------------+-----------+------------+");
-                System.out.println("| ID      | Type          | Montant   | Date       |");
-                System.out.println("+---------+---------------+-----------+------------+");
-
-                for (Paiement paiement : paiements) {
-                    System.out.printf("| %-7d | %-13s | %-9.2f | %-10s |\n",
-                            paiement.getId(),
-                            paiement.getTypePaiement(),
-                            paiement.getMontant(),
-                            paiement.getDatePaiement()
-                    );
-                }
-                System.out.println("+---------+---------------+-----------+------------+");
-
-                BigDecimal total = paiements.stream()
-                        .map(Paiement::getMontant)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                System.out.println("Total des paiements : " + total + " DH");
-            } else {
-                System.out.println("Aucun paiement trouvé pour cet agent.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la consultation des paiements : " + e.getMessage());
-            scanner.nextLine();
-        }
-    }
-
-    public void consulterPaiementsDepartement(int responsableId) {
-        try {
-            System.out.println("\n=== CONSULTATION DES PAIEMENTS DU DÉPARTEMENT ===");
-
-            System.out.print("ID du département : ");
-            int departementId = scanner.nextInt();
-            scanner.nextLine(); 
-            List<Paiement> paiements = responsableService.consulterPaiementsDepartement(departementId, responsableId);
-
-            if (paiements != null && !paiements.isEmpty()) {
-                System.out.println("\nPaiements du département ID " + departementId + " :");
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-                System.out.println("| ID      | Agent ID | Type          | Montant   | Date       |");
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-
-                for (Paiement paiement : paiements) {
-                    System.out.printf("| %-7d | %-8d | %-13s | %-9.2f | %-10s |\n",
-                            paiement.getId(),
-                            paiement.getAgent().getId(),
-                            paiement.getTypePaiement(),
-                            paiement.getMontant(),
-                            paiement.getDatePaiement()
-                    );
-                }
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-
-                BigDecimal total = paiements.stream()
-                        .map(Paiement::getMontant)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                System.out.println("Total des paiements du département : " + total + " DH");
-            } else {
-                System.out.println("Aucun paiement trouvé pour ce département.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la consultation des paiements : " + e.getMessage());
-            scanner.nextLine();
-        }
-    }
-
-    public void filtrerTrierPaiementsDepartement(int responsableId) {
-        try {
-            System.out.println("\n=== FILTRAGE ET TRI DES PAIEMENTS DU DÉPARTEMENT ===");
-
-            System.out.print("ID du département : ");
-            int departementId = scanner.nextInt();
-            scanner.nextLine(); 
-            System.out.println("Types de paiements disponibles :");
-            System.out.println("1. SALAIRE");
-            System.out.println("2. PRIME");
-            System.out.println("3. BONUS");
-            System.out.println("4. INDEMNITE");
-            System.out.println("0. Tous les types");
-            System.out.print("Choisissez le type de paiement (0-4) : ");
-
-            int choixType = scanner.nextInt();
-            scanner.nextLine(); 
-            TypePaiement typePaiement = null;
-            switch (choixType) {
-                case 1:
-                    typePaiement = TypePaiement.SALAIRE;
-                    break;
-                case 2:
-                    typePaiement = TypePaiement.PRIME;
-                    break;
-                case 3:
-                    typePaiement = TypePaiement.BONUS;
-                    break;
-                case 4:
-                    typePaiement = TypePaiement.INDEMNITE;
-                    break;
-                case 0:
-                default:
-                    typePaiement = null; // Tous les types
-                    break;
-            }
-
-            System.out.print("Trier par montant ? (oui/non) : ");
-            boolean triParMontant = scanner.nextLine().trim().toLowerCase().startsWith("o");
-
-            System.out.print("Trier par date ? (oui/non) : ");
-            boolean triParDate = scanner.nextLine().trim().toLowerCase().startsWith("o");
-
-            List<Paiement> paiements = responsableService.filtrerTrierPaiementsDepartement(
-                    departementId, typePaiement, triParMontant, triParDate, responsableId);
-
-            if (paiements != null && !paiements.isEmpty()) {
-                System.out.println("\nPaiements filtrés et triés du département ID " + departementId + " :");
-                if (typePaiement != null) {
-                    System.out.println("Filtre : " + typePaiement);
-                }
-                if (triParMontant) {
-                    System.out.println("Trié par : Montant");
-                }
-                if (triParDate) {
-                    System.out.println("Trié par : Date");
-                }
-
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-                System.out.println("| ID      | Agent ID | Type          | Montant   | Date       |");
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-
-                for (Paiement paiement : paiements) {
-                    System.out.printf("| %-7d | %-8d | %-13s | %-9.2f | %-10s |\n",
-                            paiement.getId(),
-                            paiement.getAgent().getId(),
-                            paiement.getTypePaiement(),
-                            paiement.getMontant(),
-                            paiement.getDatePaiement()
-                    );
-                }
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-
-                BigDecimal total = paiements.stream()
-                        .map(Paiement::getMontant)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                System.out.println("Total des paiements filtrés : " + total + " DH");
-            } else {
-                System.out.println("Aucun paiement trouvé avec les critères spécifiés.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors du filtrage et tri des paiements : " + e.getMessage());
-            scanner.nextLine();
-        }
-    }
-
-    public void ajouterPaiementAgent(int responsableId) {
-        try {
-            System.out.println("\n=== AJOUT D'UN PAIEMENT À UN AGENT ===");
-
-            System.out.print("ID de l'agent : ");
-            int agentId = scanner.nextInt();
-            scanner.nextLine(); 
-            System.out.println("Types de paiements disponibles :");
-            System.out.println("1. SALAIRE");
-            System.out.println("2. PRIME");
-            System.out.println("3. Demander BONUS (nécessite validation)");
-            System.out.println("4. Demander INDEMNITÉ (nécessite validation)");
-            System.out.print("Choisissez le type de paiement (1-4) : ");
-
-            int choixType = scanner.nextInt();
-            scanner.nextLine(); 
-            System.out.print("Montant : ");
-            double montant = scanner.nextDouble();
-            scanner.nextLine(); 
-            switch (choixType) {
-                case 1:
-                    responsableService.ajouterSalaire(agentId, montant, responsableId);
-                    System.out.println("Salaire ajouté avec succès !");
-                    break;
-                case 2:
-                    responsableService.ajouterPrime(agentId, montant, responsableId);
-                    System.out.println("Prime ajoutée avec succès !");
-                    break;
-                case 3:
-                    int bonusId = responsableService.demanderBonus(agentId, montant, responsableId);
-                    if (bonusId > 0) {
-                        System.out.println("Demande de bonus soumise avec succès ! ID: " + bonusId);
-                    }
-                    break;
-                case 4:
-                    int indemniteId = responsableService.demanderIndemnite(agentId, montant, responsableId);
-                    if (indemniteId > 0) {
-                        System.out.println("Demande d'indemnité soumise avec succès ! ID: " + indemniteId);
-                    }
-                    break;
-                default:
-                    System.out.println("Choix invalide.");
-                    break;
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'ajout du paiement : " + e.getMessage());
-            scanner.nextLine();
-        }
-    }
-
-    public void consulterPaiementsDepartement(int responsableId, int departementId) {
-        try {
-            System.out.println("\n=== CONSULTATION DES PAIEMENTS DU DÉPARTEMENT ===");
-
-            List<Paiement> paiements = responsableService.consulterPaiementsDepartement(departementId, responsableId);
-
-            if (paiements != null && !paiements.isEmpty()) {
-                System.out.println("\nPaiements du département ID " + departementId + " :");
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-                System.out.println("| ID      | Agent ID | Type          | Montant   | Date       |");
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-
-                for (Paiement paiement : paiements) {
-                    System.out.printf("| %-7d | %-8d | %-13s | %-9.2f | %-10s |\n",
-                            paiement.getId(),
-                            paiement.getAgent().getId(),
-                            paiement.getTypePaiement(),
-                            paiement.getMontant(),
-                            paiement.getDatePaiement()
-                    );
-                }
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-
-                BigDecimal total = paiements.stream()
-                        .map(Paiement::getMontant)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                System.out.println("Total des paiements du département : " + total + " DH");
-            } else {
-                System.out.println("Aucun paiement trouvé pour ce département.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la consultation des paiements : " + e.getMessage());
-        }
-    }
-
-    public void filtrerTrierPaiementsDepartement(int responsableId, int departementId) {
-        try {
-            System.out.println("\n=== FILTRAGE ET TRI DES PAIEMENTS DU DÉPARTEMENT ===");
-
-            System.out.println("Types de paiements disponibles :");
-            System.out.println("1. SALAIRE");
-            System.out.println("2. PRIME");
-            System.out.println("3. BONUS");
-            System.out.println("4. INDEMNITE");
-            System.out.println("0. Tous les types");
-            System.out.print("Choisissez le type de paiement (0-4) : ");
-
-            int choixType = scanner.nextInt();
-            scanner.nextLine(); 
-            TypePaiement typePaiement = null;
-            switch (choixType) {
-                case 1:
-                    typePaiement = TypePaiement.SALAIRE;
-                    break;
-                case 2:
-                    typePaiement = TypePaiement.PRIME;
-                    break;
-                case 3:
-                    typePaiement = TypePaiement.BONUS;
-                    break;
-                case 4:
-                    typePaiement = TypePaiement.INDEMNITE;
-                    break;
-                case 0:
-                default:
-                    typePaiement = null;
-                    break;
-            }
-
-            System.out.print("Trier par montant ? (oui/non) : ");
-            boolean triParMontant = scanner.nextLine().trim().toLowerCase().startsWith("o");
-
-            System.out.print("Trier par date ? (oui/non) : ");
-            boolean triParDate = scanner.nextLine().trim().toLowerCase().startsWith("o");
-
-            List<Paiement> paiements = responsableService.filtrerTrierPaiementsDepartement(
-                    departementId, typePaiement, triParMontant, triParDate, responsableId);
-
-            if (paiements != null && !paiements.isEmpty()) {
-                System.out.println("\nPaiements filtrés et triés du département ID " + departementId + " :");
-                if (typePaiement != null) {
-                    System.out.println("Filtre : " + typePaiement);
-                }
-                if (triParMontant) {
-                    System.out.println("Trié par : Montant");
-                }
-                if (triParDate) {
-                    System.out.println("Trié par : Date");
-                }
-
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-                System.out.println("| ID      | Agent ID | Type          | Montant   | Date       |");
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-
-                for (Paiement paiement : paiements) {
-                    System.out.printf("| %-7d | %-8d | %-13s | %-9.2f | %-10s |\n",
-                            paiement.getId(),
-                            paiement.getAgent().getId(),
-                            paiement.getTypePaiement(),
-                            paiement.getMontant(),
-                            paiement.getDatePaiement()
-                    );
-                }
-                System.out.println("+---------+----------+---------------+-----------+------------+");
-
-                BigDecimal total = paiements.stream()
-                        .map(Paiement::getMontant)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
-                System.out.println("Total des paiements filtrés : " + total + " DH");
-            } else {
-                System.out.println("Aucun paiement trouvé avec les critères spécifiés.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors du filtrage et tri des paiements : " + e.getMessage());
-            scanner.nextLine();
-        }
-    }
-
-    public void calculerStatistiquesDepartement(int responsableId, int departementId) {
+    public void afficherStatistiquesDepartement(int responsableId) {
         try {
             System.out.println("\n=== STATISTIQUES DU DÉPARTEMENT ===");
-            System.out.println("Fonctionnalité en cours de développement...");
-            // TODO: Implémenter les statistiques quand les méthodes seront disponibles dans le service
+            
+            System.out.print("ID du département à analyser : ");
+            int departementId = scanner.nextInt();
+            scanner.nextLine();
+            
+            Map<String, Object> statistiques = responsableService.calculerStatistiquesDepartement(departementId, responsableId);
+            
+            if (statistiques.isEmpty()) {
+                System.out.println("Aucune statistique disponible ou accès refusé.");
+                return;
+            }
+            
+            System.out.println("\n📊 === RAPPORT STATISTIQUES DÉPARTEMENT === 📊");
+            System.out.println("┌─────────────────────────────────────────────┐");
+            System.out.println("│            INFORMATIONS GÉNÉRALES          │");
+            System.out.println("├─────────────────────────────────────────────┤");
+            System.out.println("│ Nombre d'agents: " + statistiques.get("nombreAgents"));
+            System.out.println("│ Nombre de paiements: " + statistiques.get("nombrePaiements"));
+            System.out.println("│ Montant total: " + statistiques.get("montantTotal") + " DH");
+            System.out.println("│ Montant moyen: " + statistiques.get("montantMoyen") + " DH");
+            System.out.println("└─────────────────────────────────────────────┘");
+            
+            // Affichage des répartitions par type
+            @SuppressWarnings("unchecked")
+            Map<TypePaiement, Integer> repartitionParType = (Map<TypePaiement, Integer>) statistiques.get("repartitionParType");
+            @SuppressWarnings("unchecked")
+            Map<TypePaiement, BigDecimal> montantParType = (Map<TypePaiement, BigDecimal>) statistiques.get("montantParType");
+            
+            System.out.println("\n💰 RÉPARTITION PAR TYPE DE PAIEMENT:");
+            for (TypePaiement type : TypePaiement.values()) {
+                int nombre = repartitionParType.getOrDefault(type, 0);
+                BigDecimal montant = montantParType.getOrDefault(type, BigDecimal.ZERO);
+                System.out.println("  " + type + ": " + nombre + " paiements (" + montant + " DH)");
+            }
+            
+            // Affichage du top 5 des agents
+            @SuppressWarnings("unchecked")
+            Map<String, BigDecimal> montantParAgent = (Map<String, BigDecimal>) statistiques.get("montantParAgent");
+            
+            System.out.println("\n🏆 TOP 5 AGENTS PAR MONTANT:");
+            montantParAgent.entrySet().stream()
+                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+                .limit(5)
+                .forEach(entry -> System.out.println("  " + entry.getKey() + ": " + entry.getValue() + " DH"));
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'affichage des statistiques : " + e.getMessage());
+            scanner.nextLine();
+        }
+    }
+
+    /**
+     * Affiche le classement complet des agents par montant total de paiements
+     */
+    public void afficherClassementAgents(int responsableId) {
+        try {
+            System.out.println("\n=== CLASSEMENT DES AGENTS ===");
+            
+            System.out.print("ID du département à analyser : ");
+            int departementId = scanner.nextInt();
+            scanner.nextLine();
+            
+            List<Agent> classement = responsableService.classementAgentsParPaiement(departementId, responsableId);
+            
+            if (classement.isEmpty()) {
+                System.out.println("Aucun agent trouvé ou accès refusé.");
+                return;
+            }
+            
+            System.out.println("\n🏆 === CLASSEMENT DES AGENTS PAR PAIEMENTS === 🏆");
+            System.out.println("┌──────┬─────────────────────────┬─────────────────┬──────────────┐");
+            System.out.println("│ Rang │         Agent           │      Type       │    E-mail    │");
+            System.out.println("├──────┼─────────────────────────┼─────────────────┼──────────────┤");
+            
+            for (int i = 0; i < classement.size(); i++) {
+                Agent agent = classement.get(i);
+                String rang = String.format("%2d", i + 1);
+                String nom = String.format("%-23s", agent.getPrenom() + " " + agent.getNom());
+                String type = String.format("%-15s", agent.getTypeAgent().toString());
+                String email = String.format("%-12s", agent.getEmail());
+                
+                System.out.println("│  " + rang + "  │ " + nom + " │ " + type + " │ " + email + " │");
+            }
+            
+            System.out.println("└──────┴─────────────────────────┴─────────────────┴──────────────┘");
+            System.out.println("Classement basé sur le montant total des paiements reçus");
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'affichage du classement : " + e.getMessage());
+            scanner.nextLine();
+        }
+    }
+    
+    public void consulterPaiementsDepartement(int responsableId) {
+        try {
+            Agent responsable = responsableService.obtenirInformationsAgent(responsableId);
+            if (responsable == null || responsable.getDepartement() == null) {
+                System.err.println("Responsable introuvable ou pas de département assigné");
+                return;
+            }
+            
+            int departementId = responsable.getDepartement().getId();
+            List<Paiement> paiements = responsableService.consulterTousPaiementsDepartement(departementId, responsableId);
+            
+            if (paiements.isEmpty()) {
+                System.out.println("Aucun paiement trouvé pour ce département.");
+                return;
+            }
+            
+            System.out.println("\n=== PAIEMENTS DU DÉPARTEMENT ===");
+            System.out.printf("%-5s %-20s %-15s %-12s %-15s %-8s%n",
+                            "ID", "Agent", "Type", "Montant", "Date", "Validé");
+            System.out.println("=".repeat(80));
+            
+            for (Paiement p : paiements) {
+                String agentNom = p.getAgent().getPrenom() + " " + p.getAgent().getNom();
+                System.out.printf("%-5d %-20s %-15s %-12.2f %-15s %-8s%n",
+                    p.getId(),
+                    agentNom.length() > 18 ? agentNom.substring(0, 18) + ".." : agentNom,
+                    p.getTypePaiement(),
+                    p.getMontant(),
+                    p.getDatePaiement(),
+                    p.isConditionValidee() ? "✅" : "⏳"
+                );
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la consultation : " + e.getMessage());
+        }
+    }
+    
+    public void calculerStatistiquesDepartement(int responsableId) {
+        try {
+            Agent responsable = responsableService.obtenirInformationsAgent(responsableId);
+            if (responsable == null || responsable.getDepartement() == null) {
+                System.err.println("Responsable introuvable ou pas de département assigné");
+                return;
+            }
+            
+            int departementId = responsable.getDepartement().getId();
+            Map<String, Object> statistiques = responsableService.calculerStatistiquesDepartement(departementId, responsableId);
+            
+            System.out.println("\n=== STATISTIQUES DU DÉPARTEMENT ===");
+            for (Map.Entry<String, Object> entry : statistiques.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+            
         } catch (Exception e) {
             System.err.println("Erreur lors du calcul des statistiques : " + e.getMessage());
         }
     }
-
-    public void classementAgents(int responsableId, int departementId) {
+    
+    public void classementAgentsParPaiements(int responsableId) {
         try {
-            System.out.println("\n=== CLASSEMENT DES AGENTS ===");
-            System.out.println("Fonctionnalité en cours de développement...");
-            // TODO: Implémenter le classement quand les méthodes seront disponibles dans le service
+            Agent responsable = responsableService.obtenirInformationsAgent(responsableId);
+            if (responsable == null || responsable.getDepartement() == null) {
+                System.err.println("Responsable introuvable ou pas de département assigné");
+                return;
+            }
+            
+            int departementId = responsable.getDepartement().getId();
+            List<Agent> classement = responsableService.classementAgentsParPaiement(departementId, responsableId);
+            
+            if (classement.isEmpty()) {
+                System.out.println("Aucun agent trouvé pour le classement.");
+                return;
+            }
+            
+            System.out.println("\n=== CLASSEMENT DES AGENTS PAR PAIEMENTS ===");
+            System.out.printf("%-5s %-25s %-15s %-12s%n", "Rang", "Agent", "Type", "Montant Total");
+            System.out.println("=".repeat(65));
+            
+            for (int i = 0; i < classement.size(); i++) {
+                Agent agent = classement.get(i);
+                double total = responsableService.calculerTotalPaiements(agent.getId());
+                System.out.printf("%-5d %-25s %-15s %-12.2f%n",
+                    i + 1,
+                    agent.getPrenom() + " " + agent.getNom(),
+                    agent.getTypeAgent(),
+                    total
+                );
+            }
+            
         } catch (Exception e) {
-            System.err.println("Erreur lors du classement des agents : " + e.getMessage());
-        }
-    }
-
-    public void identifierPaiementsInhabituels(int responsableId, int departementId) {
-        try {
-            System.out.println("\n=== IDENTIFICATION DES PAIEMENTS INHABITUELS ===");
-            System.out.println("Fonctionnalité en cours de développement...");
-            // TODO: Implémenter l'identification quand les méthodes seront disponibles dans le service
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'identification des paiements inhabituels : " + e.getMessage());
+            System.err.println("Erreur lors du classement : " + e.getMessage());
         }
     }
 }

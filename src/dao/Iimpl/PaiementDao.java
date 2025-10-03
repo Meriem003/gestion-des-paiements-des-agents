@@ -7,9 +7,15 @@ import model.Agent;
 import java.sql.*;
 import java.util.List;
 import java.util.ArrayList;
+import utils.DBConnection;
 
 public class PaiementDao implements IPaiementDao {
     private Connection connection;
+    
+    public PaiementDao() {
+        this.connection = DBConnection.getInstance().getConnection();
+    }
+    
     public PaiementDao(Connection connection) {
         this.connection = connection;
     }

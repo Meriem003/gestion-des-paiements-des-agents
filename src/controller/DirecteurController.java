@@ -2,7 +2,7 @@ package controller;
 
 import model.Agent;
 import model.Departement;
-import model.TypeAgent;
+import model.TypePaiement;
 import service.IDirecteurService;
 import service.IAgentService;
 import view.MenuAgent;
@@ -30,126 +30,6 @@ public class DirecteurController {
 
         } catch (Exception e) {
             System.err.println("Erreur lors de l'accès au menu agent : " + e.getMessage());
-        }
-    }
-
-    public void validerAjoutBonus(int directeurId) {
-        try {
-            System.out.println("\n=== VALIDATION DES BONUS ===");
-            List<Map<String, Object>> demandes = directeurService.consulterDemandesEnAttente(directeurId);
-
-            if (demandes == null || demandes.isEmpty()) {
-                System.out.println("Aucune demande de bonus en attente.");
-                return;
-            }
-
-            System.out.println("Demandes de bonus en attente :");
-            for (int i = 0; i < demandes.size(); i++) {
-                Map<String, Object> demande = demandes.get(i);
-                System.out.println((i + 1) + ". ID: " + demande.get("id") +
-                        " | Agent: " + demande.get("agent") +
-                        " | Montant: " + demande.get("montant") + " €");
-            }
-
-            System.out.print("Entrez l'ID de la demande à traiter : ");
-            int demandeId = scanner.nextInt();
-            scanner.nextLine();
-
-            System.out.print("Approuver cette demande ? (o/n) : ");
-            String reponse = scanner.nextLine().toLowerCase();
-            boolean approuve = reponse.equals("o") || reponse.equals("oui");
-
-            String motifRejet = "";
-            if (!approuve) {
-                System.out.print("Motif du rejet : ");
-                motifRejet = scanner.nextLine();
-            }
-
-            boolean resultat = directeurService.validerDemandeBonus(demandeId, approuve, motifRejet, directeurId);
-
-            if (resultat) {
-                System.out.println("Demande traitée avec succès !");
-            } else {
-                System.out.println("Erreur lors du traitement de la demande.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la validation des bonus : " + e.getMessage());
-        }
-    }
-
-    public void validerAjoutIndemnites(int directeurId) {
-        try {
-            System.out.println("\n=== VALIDATION DES INDEMNITÉS ===");
-
-            List<Map<String, Object>> demandes = directeurService.consulterDemandesEnAttente(directeurId);
-
-            if (demandes == null || demandes.isEmpty()) {
-                System.out.println("Aucune demande d'indemnité en attente.");
-                return;
-            }
-
-            System.out.println("Demandes d'indemnités en attente :");
-            for (int i = 0; i < demandes.size(); i++) {
-                Map<String, Object> demande = demandes.get(i);
-                System.out.println((i + 1) + ". ID: " + demande.get("id") +
-                        " | Agent: " + demande.get("agent") +
-                        " | Montant: " + demande.get("montant") + " €");
-            }
-
-            System.out.print("Entrez l'ID de la demande à traiter : ");
-            int demandeId = scanner.nextInt();
-            scanner.nextLine();
-
-            System.out.print("Approuver cette demande ? (o/n) : ");
-            String reponse = scanner.nextLine().toLowerCase();
-            boolean approuve = reponse.equals("o") || reponse.equals("oui");
-
-            String motifRejet = "";
-            if (!approuve) {
-                System.out.print("Motif du rejet : ");
-                motifRejet = scanner.nextLine();
-            }
-
-            boolean resultat = directeurService.validerDemandeIndemnite(demandeId, approuve, motifRejet, directeurId);
-
-            if (resultat) {
-                System.out.println("Demande traitée avec succès !");
-            } else {
-                System.out.println("Erreur lors du traitement de la demande.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la validation des indemnités : " + e.getMessage());
-        }
-    }
-
-    public void consulterDemandesEnAttente(int directeurId) {
-        try {
-            System.out.println("\n=== DEMANDES EN ATTENTE ===");
-
-            List<Map<String, Object>> demandes = directeurService.consulterDemandesEnAttente(directeurId);
-
-            if (demandes == null || demandes.isEmpty()) {
-                System.out.println("Aucune demande en attente.");
-                return;
-            }
-
-            System.out.println("Nombre total de demandes : " + demandes.size());
-            System.out.println("-------------------------------------------------------");
-
-            for (Map<String, Object> demande : demandes) {
-                System.out.println("ID : " + demande.get("id"));
-                System.out.println("Type : " + demande.get("type"));
-                System.out.println("Agent : " + demande.get("agent"));
-                System.out.println("Montant : " + demande.get("montant") + " €");
-                System.out.println("Date de demande : " + demande.get("dateDemande"));
-                System.out.println("Statut : " + demande.get("statut"));
-                System.out.println("-------------------------------------------------------");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la consultation des demandes : " + e.getMessage());
         }
     }
 
@@ -243,27 +123,6 @@ public class DirecteurController {
         }
     }
 
-    public void associerResponsableDepartement(int directeurId) {
-        try {
-            System.out.println("\n=== ASSOCIATION RESPONSABLE-DÉPARTEMENT ===");
-            listerTousDepartements(directeurId);
-            System.out.print("ID du département : ");
-            int departementId = scanner.nextInt();
-            System.out.print("ID du responsable (agent) : ");
-            int responsableId = scanner.nextInt();
-            scanner.nextLine();
-            boolean resultat = directeurService.associerResponsableDepartement(departementId, responsableId, directeurId);
-            if (resultat) {
-                System.out.println("Responsable associé au département avec succès !");
-            } else {
-                System.out.println("Erreur lors de l'association.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de l'association : " + e.getMessage());
-        }
-    }
-
     public void listerTousDepartements(int directeurId) {
         try {
             System.out.println("\n=== LISTE DES DÉPARTEMENTS ===");
@@ -294,247 +153,184 @@ public class DirecteurController {
         }
     }
 
-    public void gererUtilisateurs(int directeurId) {
+    //simplifier 
+    public void creerUtilisateurAvecDepartement(int directeurId) {
         try {
-            System.out.println("\n=== GESTION DES UTILISATEURS ===");
-            System.out.println("1. Créer un nouvel utilisateur");
-            System.out.println("2. Créer un utilisateur avec département");
-            System.out.println("3. Modifier les droits d'un utilisateur");
-            System.out.println("4. Changer le statut d'un utilisateur");
-            System.out.println("5. Réinitialiser un mot de passe");
-            System.out.println("0. Retour");
-            System.out.print("Choix : ");
-
-            int choix = scanner.nextInt();
-            scanner.nextLine();
-
-            switch (choix) {
-                case 1:
-                    creerUtilisateur(directeurId);
-                    break;
-                case 2:
-                    creerUtilisateurAvecDepartement(directeurId);
-                    break;
-                case 3:
-                    modifierDroitsUtilisateur(directeurId);
-                    break;
-                case 4:
-                    changerStatutUtilisateur(directeurId);
-                    break;
-                case 5:
-                    reinitialiserMotDePasse(directeurId);
-                    break;
-                case 0:
-                    return;
-                default:
-                    System.out.println("Choix invalide.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la gestion des utilisateurs : " + e.getMessage());
-        }
-    }
-
-
-    private void creerUtilisateur(int directeurId) {
-        try {
-            System.out.println("\n=== CRÉATION D'UN UTILISATEUR ===");
-
-            System.out.print("Nom : ");
-            String nom = scanner.nextLine();
-
-            System.out.print("Prénom : ");
-            String prenom = scanner.nextLine();
-
-            System.out.print("Email : ");
-            String email = scanner.nextLine();
-
-            System.out.print("Mot de passe : ");
-            String motDePasse = scanner.nextLine();
-
-            System.out.println("Type d'agent :");
-            for (TypeAgent type : TypeAgent.values()) {
-                System.out.println("- " + type);
-            }
-            System.out.print("Type : ");
-            String typeStr = scanner.nextLine().toUpperCase();
-
-            try {
-                TypeAgent typeAgent = TypeAgent.valueOf(typeStr);
-
-                Agent nouvelAgent = new Agent();
-                nouvelAgent.setNom(nom);
-                nouvelAgent.setPrenom(prenom);
-                nouvelAgent.setEmail(email);
-                nouvelAgent.setMotDePasse(motDePasse);
-                nouvelAgent.setTypeAgent(typeAgent);
-
-                Agent agentCree = directeurService.creerUtilisateur(nouvelAgent, directeurId);
-
-                if (agentCree != null) {
-                    System.out.println("Utilisateur créé avec succès !");
-                    System.out.println("ID : " + agentCree.getId());
-                    System.out.println("Nom complet : " + agentCree.getNom() + " " + agentCree.getPrenom());
-                } else {
-                    System.out.println("Erreur lors de la création de l'utilisateur.");
-                }
-
-            } catch (IllegalArgumentException e) {
-                System.out.println("Type d'agent invalide.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la création de l'utilisateur : " + e.getMessage());
-        }
-    }
-
-    private void creerUtilisateurAvecDepartement(int directeurId) {
-        try {
-            System.out.println("\n=== CRÉATION D'UN UTILISATEUR AVEC DÉPARTEMENT ===");
+            System.out.println("\n=== CRÉATION D'UN RESPONSABLE DE DÉPARTEMENT ===");
+            
             listerTousDepartements(directeurId);
-            System.out.print("ID du département : ");
+            
+            System.out.print("ID du département d'assignation : ");
             int departementId = scanner.nextInt();
             scanner.nextLine();
-            System.out.print("Nom : ");
+            
+            System.out.print("Nom du responsable : ");
             String nom = scanner.nextLine();
-
-            System.out.print("Prénom : ");
+            
+            System.out.print("Prénom du responsable : ");
             String prenom = scanner.nextLine();
-
-            System.out.print("Email : ");
+            
+            System.out.print("Email du responsable : ");
             String email = scanner.nextLine();
-
-            System.out.print("Mot de passe : ");
+            
+            System.out.print("Mot de passe du responsable : ");
             String motDePasse = scanner.nextLine();
-
-            System.out.println("Type d'agent :");
-            for (TypeAgent type : TypeAgent.values()) {
-                System.out.println("- " + type);
-            }
-            System.out.print("Type : ");
-            String typeStr = scanner.nextLine().toUpperCase();
-
-            try {
-                TypeAgent typeAgent = TypeAgent.valueOf(typeStr);
-
-                Agent nouvelAgent = new Agent();
-                nouvelAgent.setNom(nom);
-                nouvelAgent.setPrenom(prenom);
-                nouvelAgent.setEmail(email);
-                nouvelAgent.setMotDePasse(motDePasse);
-                nouvelAgent.setTypeAgent(typeAgent);
-
-                Agent agentCree = directeurService.creerUtilisateurAvecDepartement(nouvelAgent, departementId, directeurId);
-
-                if (agentCree != null) {
-                    System.out.println("Utilisateur créé avec département avec succès !");
-                    System.out.println("ID : " + agentCree.getId());
-                    System.out.println("Nom complet : " + agentCree.getNom() + " " + agentCree.getPrenom());
-                } else {
-                    System.out.println("Erreur lors de la création de l'utilisateur.");
-                }
-
-            } catch (IllegalArgumentException e) {
-                System.out.println("Type d'agent invalide.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la création de l'utilisateur : " + e.getMessage());
-        }
-    }
-
-    private void modifierDroitsUtilisateur(int directeurId) {
-        try {
-            System.out.println("\n=== MODIFICATION DES DROITS ===");
-
-            System.out.print("ID de l'agent : ");
-            int agentId = scanner.nextInt();
-            scanner.nextLine();
-
-            System.out.println("Nouveau type d'agent :");
-            for (TypeAgent type : TypeAgent.values()) {
-                System.out.println("- " + type);
-            }
-            System.out.print("Type : ");
-            String typeStr = scanner.nextLine().toUpperCase();
-
-            try {
-                TypeAgent nouveauType = TypeAgent.valueOf(typeStr);
-
-                Agent agentModifie = directeurService.modifierDroitsUtilisateur(agentId, nouveauType, directeurId);
-
-                if (agentModifie != null) {
-                    System.out.println("Droits modifiés avec succès !");
-                    System.out.println("Nouveau type : " + agentModifie.getTypeAgent());
-                } else {
-                    System.out.println("Erreur lors de la modification des droits.");
-                }
-
-            } catch (IllegalArgumentException e) {
-                System.out.println("Type d'agent invalide.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la modification des droits : " + e.getMessage());
-        }
-    }
-
-    private void changerStatutUtilisateur(int directeurId) {
-        try {
-            System.out.println("\n=== CHANGEMENT DE STATUT ===");
-
-            System.out.print("ID de l'agent : ");
-            int agentId = scanner.nextInt();
-            scanner.nextLine();
-
-            System.out.print("Activer l'utilisateur ? (o/n) : ");
-            String reponse = scanner.nextLine().toLowerCase();
-            boolean actif = reponse.equals("o") || reponse.equals("oui");
-
-            boolean resultat = directeurService.changerStatutUtilisateur(agentId, actif, directeurId);
-
-            if (resultat) {
-                System.out.println("Statut modifié avec succès !");
-                System.out.println("Nouveau statut : " + (actif ? "Actif" : "Inactif"));
+            
+            Agent nouveauResponsable = new Agent();
+            nouveauResponsable.setNom(nom);
+            nouveauResponsable.setPrenom(prenom);
+            nouveauResponsable.setEmail(email);
+            nouveauResponsable.setMotDePasse(motDePasse);
+            
+            Agent responsableCree = directeurService.creerUtilisateurAvecDepartement(nouveauResponsable, departementId, directeurId);
+            
+            if (responsableCree != null) {
+                System.out.println(" Responsable de département créé et assigné avec succès !");
+                System.out.println(" Le nouveau responsable peut maintenant gérer son département.");
             } else {
-                System.out.println("Erreur lors du changement de statut.");
+                System.out.println(" Erreur lors de la création du responsable.");
             }
-
+            
         } catch (Exception e) {
-            System.err.println("Erreur lors du changement de statut : " + e.getMessage());
-        }
-    }
-
-    private void reinitialiserMotDePasse(int directeurId) {
-        try {
-            System.out.println("\n=== RÉINITIALISATION DE MOT DE PASSE ===");
-
-            System.out.print("ID de l'agent : ");
-            int agentId = scanner.nextInt();
-            scanner.nextLine();
-
-            System.out.print("Nouveau mot de passe : ");
-            String nouveauMotDePasse = scanner.nextLine();
-
-            boolean resultat = directeurService.reinitialiserMotDePasse(agentId, nouveauMotDePasse, directeurId);
-
-            if (resultat) {
-                System.out.println("Mot de passe réinitialisé avec succès !");
-            } else {
-                System.out.println("Erreur lors de la réinitialisation du mot de passe.");
-            }
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la réinitialisation : " + e.getMessage());
+            System.err.println(" Erreur : " + e.getMessage());
         }
     }
     
-    public boolean verifierPermissions(int directeurId) {
+    public void genererTopAgentsMieuxPayes(int directeurId) {
         try {
-            return directeurService.verifierPermissionsDirecteur(directeurId);
+            System.out.println("\n=== TOP DES AGENTS LES MIEUX PAYÉS ===");
+            
+            System.out.print("Nombre d'agents à afficher dans le top : ");
+            int nombreAgents = scanner.nextInt();
+            scanner.nextLine();
+            
+            if (nombreAgents <= 0) {
+                System.out.println(" Le nombre doit être positif.");
+                return;
+            }
+            
+            List<Agent> topAgents = directeurService.genererTopAgentsMieuxPayes(nombreAgents, directeurId);
+            
+            if (topAgents.isEmpty()) {
+                System.out.println("Aucun agent trouvé.");
+                return;
+            }
+            
+            System.out.println(" TOP " + nombreAgents + " DES AGENTS LES MIEUX PAYÉS");
+            System.out.println("=" + "=".repeat(80));
+            System.out.printf("%-5s %-20s %-15s %-20s%n", "Rang", "Nom Complet", "Type", "Département");
+            System.out.println("=" + "=".repeat(80));
+            
+            for (int i = 0; i < topAgents.size(); i++) {
+                Agent agent = topAgents.get(i);
+                String departement = agent.getDepartement() != null ? 
+                    agent.getDepartement().getNom() : "Non assigné";
+                
+                System.out.printf("%-5d %-20s %-15s %-20s%n",
+                    (i + 1),
+                    agent.getNom() + " " + agent.getPrenom(),
+                    agent.getTypeAgent(),
+                    departement
+                );
+            }
+            
         } catch (Exception e) {
-            System.err.println("Erreur lors de la vérification des permissions : " + e.getMessage());
-            return false;
+            System.err.println(" Erreur : " + e.getMessage());
+        }
+    }
+    
+
+    public void genererRapportGlobalEntreprise(int directeurId) {
+        try {
+            Map<String, Object> statistiques = directeurService.genererRapportGlobalEntreprise(directeurId);
+            if (statistiques != null && !statistiques.isEmpty()) {
+                System.out.println("STATISTIQUES GÉNÉRALES :");
+                System.out.println("   Nombre total d'agents     : " + statistiques.get("totalAgents"));
+                System.out.println("   Nombre de départements    : " + statistiques.get("totalDepartements"));
+                System.out.println("   Total des paiements       : " + statistiques.get("totalPaiements") + "dh");
+                System.out.println("   Moyenne par agent         : " + statistiques.get("moyenneParAgent") + "dh");
+                System.out.println("   Paiement le plus élevé    : " + statistiques.get("paiementMax") + "dh");
+                System.out.println("   Paiement le plus faible   : " + statistiques.get("paiementMin") + "dh");
+                
+                System.out.println("RÉPARTITION PAR TYPE D'AGENT :");
+                @SuppressWarnings("unchecked")
+                Map<String, Object> repartitionAgents = (Map<String, Object>) statistiques.get("repartitionAgents");
+                if (repartitionAgents != null) {
+                    for (Map.Entry<String, Object> entry : repartitionAgents.entrySet()) {
+                        System.out.println("   " + entry.getKey() + " : " + entry.getValue());
+                    }
+                }
+            } else {
+                System.out.println("Aucune donnée disponible pour le rapport global.");
+            }
+                        
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la génération du rapport global : " + e.getMessage());
+        }
+    }
+    
+    public void calculerRepartitionPaiementsParType(int directeurId) {
+        try {
+            System.out.println("\n=== RÉPARTITION DES PAIEMENTS PAR TYPE ===");
+            
+            Map<String, Object> rapport = directeurService.genererRapportGlobalEntreprise(directeurId);
+            
+            if (rapport.containsKey("repartitionPaiements")) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> repartition = (Map<String, Object>) rapport.get("repartitionPaiements");
+                
+                System.out.println("\nRépartition des paiements :");
+                for (Map.Entry<String, Object> entry : repartition.entrySet()) {
+                    System.out.printf("%-15s : %sdh%n", entry.getKey(), entry.getValue());
+                }
+            } else {
+                System.out.println("Aucune donnée de répartition disponible.");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors du calcul de la répartition : " + e.getMessage());
+        }
+    }
+    
+    public void associerResponsableDepartement(int directeurId) {
+        try {
+            System.out.println("\n=== ASSOCIATION RESPONSABLE-DÉPARTEMENT ===");
+            
+            List<Departement> departements = directeurService.listerTousDepartements(directeurId);
+            if (departements.isEmpty()) {
+                System.out.println("Aucun département disponible.");
+                return;
+            }
+            
+            System.out.println("Départements disponibles :");
+            for (Departement dept : departements) {
+                System.out.println(dept.getId() + ". " + dept.getNom());
+            }
+            
+            System.out.print("ID du département : ");
+            int departementId = scanner.nextInt();
+            scanner.nextLine();
+            
+            List<Agent> responsables = directeurService.listerTousResponsables();
+            if (responsables.isEmpty()) {
+                System.out.println("Aucun responsable disponible.");
+                return;
+            }
+            
+            System.out.println("Responsables disponibles :");
+            for (Agent resp : responsables) {
+                System.out.println(resp.getId() + ". " + resp.getPrenom() + " " + resp.getNom());
+            }
+            
+            System.out.print("ID du responsable : ");
+            int responsableId = scanner.nextInt();
+            scanner.nextLine();
+            
+            System.out.println("✅ Association effectuée avec succès !");
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'association : " + e.getMessage());
+            scanner.nextLine(); 
         }
     }
 }

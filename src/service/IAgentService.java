@@ -10,10 +10,8 @@ import java.util.Map;
 
 public interface IAgentService {
 
-     Agent obtenirInformationsAgent(int agentId);
-     Agent mettreAJourInformationsAgent(Agent agent);
-     Departement obtenirDepartementAgent(int agentId);
-     List<Paiement> obtenirHistoriquePaiements(int agentId);
+    Agent obtenirInformationsAgent(int agentId);//valide
+    List<Paiement> obtenirHistoriquePaiements(int agentId);
     List<Paiement> filtrerPaiementsParType(int agentId, TypePaiement typePaiement);
     List<Paiement> trierPaiementsParMontant(int agentId, boolean croissant);
     List<Paiement> trierPaiementsParDate(int agentId, boolean plusRecent);
@@ -22,4 +20,5 @@ public interface IAgentService {
     Map<TypePaiement, Integer> compterPrimesBonus(int agentId);
     Map<String, Paiement> obtenirPaiementsExtremes(int agentId);
     Map<String, Object> genererStatistiquesCompletes(int agentId);
+    Agent authentifier(String email, String motDePasse);
 }

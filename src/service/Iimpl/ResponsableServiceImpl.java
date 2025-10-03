@@ -13,28 +13,29 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.HashMap;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.math.RoundingMode;
+import service.IPaiementService;
 
 public class ResponsableServiceImpl extends AgentServiceImpl implements IResponsableService {
     private AgentDao agentDao;
     private PaiementDao paiementDao;
     private DepartementDao departementDao;
+    private IPaiementService paiementService; // Injection du service de paiement
 
     public ResponsableServiceImpl(AgentDao agentDao, PaiementDao paiementDao, DepartementDao departementDao) {
         super(agentDao, paiementDao, departementDao);
         this.agentDao = agentDao;
         this.paiementDao = paiementDao;
         this.departementDao = departementDao;
+        this.paiementService = new PaiementServiceImpl(paiementDao, agentDao); // Utilisation du service existant
     }
 
     @Override
     public Agent ajouterAgent(Agent agent, int responsableId) {
         try {
-            if (!verifierPermissionsResponsable(responsableId)) {
-                System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
-                return null;
-            }
             if (agent == null) {
                 System.err.println("Erreur: L'agent ne peut pas être null");
                 return null;
@@ -196,20 +197,10 @@ public class ResponsableServiceImpl extends AgentServiceImpl implements IRespons
         }
     }
 
-    @Override
     public boolean affecterAgentDepartement(int agentId, int departementId, int responsableId) {
         try {
             if (!verifierPermissionsResponsable(responsableId)) {
                 System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
-                return false;
-            }
-            if (agentId <= 0) {
-                System.err.println("Erreur: ID d'agent invalide");
-                return false;
-            }
-
-            if (departementId <= 0) {
-                System.err.println("Erreur: ID de département invalide");
                 return false;
             }
             Agent agent = agentDao.lireParId(agentId);
@@ -260,244 +251,88 @@ public class ResponsableServiceImpl extends AgentServiceImpl implements IRespons
         }
     }
 
-    @Override
-    public Paiement ajouterSalaire(int agentId, double montant, int responsableId) {
+    public Paiement traiterPaiementAvecControles(int agentId, TypePaiement typePaiement, 
+                                                double montant, int responsableId) {
         try {
-            if (!verifierPermissionsResponsable(responsableId)) {
-                System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
+            if (!verifierAgentDansDepartementResponsable(agentId, responsableId)) {
+                System.err.println("Erreur: L'agent n'appartient pas au département du responsable");
                 return null;
             }
-            if (agentId <= 0) {
-                System.err.println("Erreur: ID d'agent invalide");
-                return null;
-            }
-
-            if (montant <= 0) {
-                System.err.println("Erreur: Le montant du salaire doit être positif");
-                return null;
-            }
-            Agent agent = agentDao.lireParId(agentId);
-            if (agent == null) {
-                System.err.println("Erreur: Agent non trouvé avec l'ID " + agentId);
-                return null;
-            }
-            Agent responsable = agentDao.lireParId(responsableId);
-            if (responsable.getDepartement() != null && agent.getDepartement() != null) {
-                if (responsable.getDepartement().getId() != agent.getDepartement().getId()) {
-                    System.err.println("Erreur: L'agent n'appartient pas au département du responsable");
-                    return null;
-                }
-            }
-
-            Paiement paiement = new Paiement();
-            paiement.setTypePaiement(TypePaiement.SALAIRE);
-            paiement.setMontant(new BigDecimal(montant));
-            paiement.setDatePaiement(LocalDate.now());
-            paiement.setMotif("Salaire ajouté par responsable ID " + responsableId);
-            paiement.setConditionValidee(true);
-            paiement.setAgent(agent);
-            paiementDao.creer(paiement);
-            System.out.println("Salaire de " + montant + " ajouté avec succès pour l'agent ID " + agentId);
-            return paiement;
+            String motif = String.format("%s ajouté par responsable ID %d", 
+                                       typePaiement.toString().toLowerCase(), responsableId);
+            
+            return paiementService.traiterPaiement(agentId, typePaiement, 
+                                                 new BigDecimal(montant), motif);
 
         } catch (Exception e) {
-            System.err.println("Erreur lors de l'ajout du salaire: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Erreur lors du traitement du paiement: " + e.getMessage());
             return null;
         }
     }
 
-    @Override
-    public Paiement ajouterPrime(int agentId, double montant, int responsableId) {
+    private boolean verifierAgentDansDepartementResponsable(int agentId, int responsableId) {
         try {
-            if (!verifierPermissionsResponsable(responsableId)) {
-                System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
-                return null;
-            }
-            if (agentId <= 0) {
-                System.err.println("Erreur: ID d'agent invalide");
-                return null;
-            }
-            if (montant <= 0) {
-                System.err.println("Erreur: Le montant de la prime doit être positif");
-                return null;
-            }
             Agent agent = agentDao.lireParId(agentId);
-            if (agent == null) {
-                System.err.println("Erreur: Agent non trouvé avec l'ID " + agentId);
-                return null;
-            }
             Agent responsable = agentDao.lireParId(responsableId);
-            if (responsable.getDepartement() != null && agent.getDepartement() != null) {
-                if (responsable.getDepartement().getId() != agent.getDepartement().getId()) {
-                    System.err.println("Erreur: L'agent n'appartient pas au département du responsable");
-                    return null;
-                }
+            
+            if (agent == null || responsable == null) {
+                return false;
             }
-            Paiement paiement = new Paiement();
-            paiement.setTypePaiement(TypePaiement.PRIME);
-            paiement.setMontant(new BigDecimal(montant));
-            paiement.setDatePaiement(LocalDate.now());
-            paiement.setMotif("Prime ajoutée par responsable ID " + responsableId);
-            paiement.setConditionValidee(true);
-            paiement.setAgent(agent);
-            paiementDao.creer(paiement);
-            System.out.println("Prime de " + montant + " ajoutée avec succès pour l'agent ID " + agentId);
-            return paiement;
-
+            
+            if (agent.getDepartement() == null || responsable.getDepartement() == null) {
+                return false;
+            }
+            
+            return agent.getDepartement().getId() == responsable.getDepartement().getId();
+            
         } catch (Exception e) {
-            System.err.println("Erreur lors de l'ajout de la prime: " + e.getMessage());
-            e.printStackTrace();
-            return null;
+            System.err.println("Erreur lors de la vérification du département: " + e.getMessage());
+            return false;
+        }
+    }
+
+    private boolean verifierResponsableDepartement(int responsableId, int departementId) {
+        try {
+            Agent responsable = agentDao.lireParId(responsableId);
+            if (responsable == null || responsable.getDepartement() == null) {
+                return false;
+            }
+            return responsable.getDepartement().getId() == departementId;
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la vérification du département du responsable: " + e.getMessage());
+            return false;
         }
     }
 
     @Override
-    public int demanderBonus(int agentId, double montant, int responsableId) {
-        try {
-            if (!verifierPermissionsResponsable(responsableId)) {
-                System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
-                return -1;
-            }
-            if (agentId <= 0) {
-                System.err.println("Erreur: ID d'agent invalide");
-                return -1;
-            }
-
-            if (montant <= 0) {
-                System.err.println("Erreur: Le montant du bonus doit être positif");
-                return -1;
-            }
-            Agent agent = agentDao.lireParId(agentId);
-            if (agent == null) {
-                System.err.println("Erreur: Agent non trouvé avec l'ID " + agentId);
-                return -1;
-            }
-            Agent responsable = agentDao.lireParId(responsableId);
-            if (responsable.getDepartement() != null && agent.getDepartement() != null) {
-                if (responsable.getDepartement().getId() != agent.getDepartement().getId()) {
-                    System.err.println("Erreur: L'agent n'appartient pas au département du responsable");
-                    return -1;
-                }
-            }
-            Paiement demande = new Paiement();
-            demande.setTypePaiement(TypePaiement.BONUS);
-            demande.setMontant(new BigDecimal(montant));
-            demande.setDatePaiement(LocalDate.now());
-            demande.setMotif("Demande de bonus par responsable ID " + responsableId + " pour agent ID " + agentId);
-            demande.setConditionValidee(false); 
-            demande.setAgent(agent);
-            paiementDao.creer(demande);
-            System.out.println("Demande de bonus de " + montant + " créée avec succès pour l'agent ID " + agentId);
-            System.out.println("ID de la demande: " + demande.getId() + " (en attente de validation)");
-            return demande.getId();
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la création de la demande de bonus: " + e.getMessage());
-            e.printStackTrace();
-            return -1;
-        }
-    }
-
-    @Override
-    public int demanderIndemnite(int agentId, double montant, int responsableId) {
-        try {
-            if (!verifierPermissionsResponsable(responsableId)) {
-                System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
-                return -1;
-            }
-            if (agentId <= 0) {
-                System.err.println("Erreur: ID d'agent invalide");
-                return -1;
-            }
-
-            if (montant <= 0) {
-                System.err.println("Erreur: Le montant de l'indemnité doit être positif");
-                return -1;
-            }
-            Agent agent = agentDao.lireParId(agentId);
-            if (agent == null) {
-                System.err.println("Erreur: Agent non trouvé avec l'ID " + agentId);
-                return -1;
-            }
-            Agent responsable = agentDao.lireParId(responsableId);
-            if (responsable.getDepartement() != null && agent.getDepartement() != null) {
-                if (responsable.getDepartement().getId() != agent.getDepartement().getId()) {
-                    System.err.println("Erreur: L'agent n'appartient pas au département du responsable");
-                    return -1;
-                }
-            }
-            Paiement demande = new Paiement();
-            demande.setTypePaiement(TypePaiement.INDEMNITE);
-            demande.setMontant(new BigDecimal(montant));
-            demande.setDatePaiement(LocalDate.now());
-            demande.setMotif("Demande d'indemnité par responsable ID " + responsableId + " pour agent ID " + agentId);
-            demande.setConditionValidee(false); 
-            demande.setAgent(agent);
-            paiementDao.creer(demande);
-            System.out.println("Demande d'indemnité de " + montant + " créée avec succès pour l'agent ID " + agentId);
-            System.out.println("ID de la demande: " + demande.getId() + " (en attente de validation)");
-            return demande.getId();
-
-        } catch (Exception e) {
-            System.err.println("Erreur lors de la création de la demande d'indemnité: " + e.getMessage());
-            e.printStackTrace();
-            return -1;
-        }
-    }
-
-    @Override
-    public List<Paiement> consulterPaiementsAgent(int agentId, int responsableId) {
+    public List<Paiement> consulterPaiementsAgentDepartement(int agentId, int responsableId) {
         try {
             if (!verifierPermissionsResponsable(responsableId)) {
                 System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
                 return new ArrayList<>();
             }
-            if (agentId <= 0) {
-                System.err.println("Erreur: ID d'agent invalide");
+            if (!verifierAgentDansDepartementResponsable(agentId, responsableId)) {
+                System.err.println("Erreur: L'agent n'appartient pas au département du responsable");
                 return new ArrayList<>();
             }
-            Agent agent = agentDao.lireParId(agentId);
-            if (agent == null) {
-                System.err.println("Erreur: Agent non trouvé avec l'ID " + agentId);
-                return new ArrayList<>();
-            }
-            Agent responsable = agentDao.lireParId(responsableId);
-            if (responsable.getDepartement() != null && agent.getDepartement() != null) {
-                if (responsable.getDepartement().getId() != agent.getDepartement().getId()) {
-                    System.err.println("Erreur: L'agent n'appartient pas au département du responsable");
-                    return new ArrayList<>();
-                }
-            }
-            List<Paiement> paiements = paiementDao.findPaiementsByAgentId(agentId);
+            List<Paiement> paiements = paiementService.obtenirPaiementsParAgent(agentId);
             System.out.println("Récupération de " + paiements.size() + " paiements pour l'agent ID " + agentId);
             return paiements;
+
         } catch (Exception e) {
             System.err.println("Erreur lors de la consultation des paiements de l'agent: " + e.getMessage());
-            e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
     @Override
-    public List<Paiement> consulterPaiementsDepartement(int departementId, int responsableId) {
+    public List<Paiement> consulterTousPaiementsDepartement(int departementId, int responsableId) {
         try {
             if (!verifierPermissionsResponsable(responsableId)) {
                 System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
                 return new ArrayList<>();
             }
-            if (departementId <= 0) {
-                System.err.println("Erreur: ID de département invalide");
-                return new ArrayList<>();
-            }
-            Departement departement = departementDao.lireParId(departementId);
-            if (departement == null) {
-                System.err.println("Erreur: Département non trouvé avec l'ID " + departementId);
-                return new ArrayList<>();
-            }
-            Agent responsable = agentDao.lireParId(responsableId);
-            if (responsable.getDepartement() == null || 
-                responsable.getDepartement().getId() != departementId) {
+            if (!verifierResponsableDepartement(responsableId, departementId)) {
                 System.err.println("Erreur: Le responsable n'appartient pas à ce département");
                 return new ArrayList<>();
             }
@@ -505,34 +340,38 @@ public class ResponsableServiceImpl extends AgentServiceImpl implements IRespons
                 .filter(agent -> agent.getDepartement() != null && 
                                agent.getDepartement().getId() == departementId)
                 .collect(Collectors.toList());
+
             List<Paiement> tousLesPaiements = new ArrayList<>();
             for (Agent agent : agentsDuDepartement) {
-                List<Paiement> paiementsAgent = paiementDao.findPaiementsByAgentId(agent.getId());
+                List<Paiement> paiementsAgent = paiementService.obtenirPaiementsParAgent(agent.getId());
                 tousLesPaiements.addAll(paiementsAgent);
             }
+
             tousLesPaiements.sort(Comparator.comparing(Paiement::getDatePaiement).reversed());
             System.out.println("Récupération de " + tousLesPaiements.size() + 
                              " paiements pour le département ID " + departementId);
             return tousLesPaiements;
+
         } catch (Exception e) {
             System.err.println("Erreur lors de la consultation des paiements du département: " + e.getMessage());
-            e.printStackTrace();
             return new ArrayList<>();
         }
     }
 
     @Override
-    public List<Paiement> filtrerTrierPaiementsDepartement(int departementId, TypePaiement typePaiement, 
-                                                          boolean triParMontant, boolean triParDate, int responsableId) {
+    public List<Paiement> filtrerPaiementsDepartement(int departementId, TypePaiement typePaiement, 
+                                                      boolean triParMontant, boolean triParDate, int responsableId) {
         try {
             if (!verifierPermissionsResponsable(responsableId)) {
                 System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
                 return new ArrayList<>();
             }
-            List<Paiement> paiementsDepartement = consulterPaiementsDepartement(departementId, responsableId);
+
+            List<Paiement> paiementsDepartement = consulterTousPaiementsDepartement(departementId, responsableId);
             if (paiementsDepartement.isEmpty()) {
                 return paiementsDepartement;
             }
+
             List<Paiement> paiementsFiltres = paiementsDepartement;
             if (typePaiement != null) {
                 paiementsFiltres = paiementsDepartement.stream()
@@ -541,6 +380,7 @@ public class ResponsableServiceImpl extends AgentServiceImpl implements IRespons
                 System.out.println("Filtrage par type " + typePaiement + ": " + 
                                  paiementsFiltres.size() + " paiements trouvés");
             }
+
             if (triParMontant && triParDate) {
                 paiementsFiltres.sort(Comparator.comparing((Paiement p) -> p.getMontant())
                                                .thenComparing(Paiement::getDatePaiement).reversed());
@@ -558,7 +398,173 @@ public class ResponsableServiceImpl extends AgentServiceImpl implements IRespons
 
         } catch (Exception e) {
             System.err.println("Erreur lors du filtrage/tri des paiements du département: " + e.getMessage());
-            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public Map<String, Object> calculerStatistiquesDepartement(int departementId, int responsableId) {
+        try {
+            if (!verifierPermissionsResponsable(responsableId)) {
+                System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
+                return new HashMap<>();
+            }
+
+            if (!verifierResponsableDepartement(responsableId, departementId)) {
+                System.err.println("Erreur: Le responsable n'appartient pas à ce département");
+                return new HashMap<>();
+            }
+
+            List<Paiement> paiementsDepartement = consulterTousPaiementsDepartement(departementId, responsableId);
+            
+            List<Agent> agentsDepartement = agentDao.lireTous().stream()
+                .filter(agent -> agent.getDepartement() != null && 
+                               agent.getDepartement().getId() == departementId)
+                .collect(Collectors.toList());
+
+            Map<String, Object> statistiques = new HashMap<>();
+
+            statistiques.put("nombreAgents", agentsDepartement.size());
+            statistiques.put("nombrePaiements", paiementsDepartement.size());
+
+            BigDecimal montantTotal = paiementsDepartement.stream()
+                .map(Paiement::getMontant)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            statistiques.put("montantTotal", montantTotal);
+
+            if (!paiementsDepartement.isEmpty()) {
+                BigDecimal montantMoyen = montantTotal.divide(
+                    new BigDecimal(paiementsDepartement.size()), 2, RoundingMode.HALF_UP);
+                statistiques.put("montantMoyen", montantMoyen);
+            } else {
+                statistiques.put("montantMoyen", BigDecimal.ZERO);
+            }
+
+            Map<TypePaiement, Integer> repartitionParType = new HashMap<>();
+            Map<TypePaiement, BigDecimal> montantParType = new HashMap<>();
+            
+            for (TypePaiement type : TypePaiement.values()) {
+                List<Paiement> paiementsType = paiementsDepartement.stream()
+                    .filter(p -> p.getTypePaiement() == type)
+                    .collect(Collectors.toList());
+                
+                repartitionParType.put(type, paiementsType.size());
+                
+                BigDecimal montantType = paiementsType.stream()
+                    .map(Paiement::getMontant)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                montantParType.put(type, montantType);
+            }
+            
+            statistiques.put("repartitionParType", repartitionParType);
+            statistiques.put("montantParType", montantParType);
+
+            Map<String, Integer> paiementsParAgent = new HashMap<>();
+            Map<String, BigDecimal> montantParAgent = new HashMap<>();
+            
+            for (Agent agent : agentsDepartement) {
+                List<Paiement> paiementsAgent = paiementsDepartement.stream()
+                    .filter(p -> p.getAgent() != null && p.getAgent().getId() == agent.getId())
+                    .collect(Collectors.toList());
+                
+                String nomAgent = agent.getPrenom() + " " + agent.getNom();
+                paiementsParAgent.put(nomAgent, paiementsAgent.size());
+                
+                BigDecimal montantAgent = paiementsAgent.stream()
+                    .map(Paiement::getMontant)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                montantParAgent.put(nomAgent, montantAgent);
+            }
+            
+            statistiques.put("paiementsParAgent", paiementsParAgent);
+            statistiques.put("montantParAgent", montantParAgent);
+
+            System.out.println("Statistiques calculées avec succès pour le département ID " + departementId);
+            return statistiques;
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors du calcul des statistiques: " + e.getMessage());
+            return new HashMap<>();
+        }
+    }
+
+    @Override
+    public List<Agent> classementAgentsParPaiement(int departementId, int responsableId) {
+        try {
+            if (!verifierPermissionsResponsable(responsableId)) {
+                System.err.println("Erreur: Permissions insuffisantes pour le responsable ID " + responsableId);
+                return new ArrayList<>();
+            }
+
+            if (!verifierResponsableDepartement(responsableId, departementId)) {
+                System.err.println("Erreur: Le responsable n'appartient pas à ce département");
+                return new ArrayList<>();
+            }
+
+            List<Agent> agentsDepartement = agentDao.lireTous().stream()
+                .filter(agent -> agent.getDepartement() != null && 
+                               agent.getDepartement().getId() == departementId)
+                .collect(Collectors.toList());
+
+            List<Paiement> paiementsDepartement = consulterTousPaiementsDepartement(departementId, responsableId);
+
+            Map<Integer, BigDecimal> montantParAgentId = new HashMap<>();
+            
+            for (Agent agent : agentsDepartement) {
+                BigDecimal montantTotal = paiementsDepartement.stream()
+                    .filter(p -> p.getAgent() != null && p.getAgent().getId() == agent.getId())
+                    .map(Paiement::getMontant)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+                
+                montantParAgentId.put(agent.getId(), montantTotal);
+            }
+            List<Agent> classement = agentsDepartement.stream()
+                .sorted((a1, a2) -> {
+                    BigDecimal montant1 = montantParAgentId.get(a1.getId());
+                    BigDecimal montant2 = montantParAgentId.get(a2.getId());
+                    return montant2.compareTo(montant1); 
+                })
+                .collect(Collectors.toList());
+
+            System.out.println("Classement généré pour " + classement.size() + " agents du département");
+            
+            for (int i = 0; i < classement.size(); i++) {
+                Agent agent = classement.get(i);
+                BigDecimal montant = montantParAgentId.get(agent.getId());
+                System.out.println((i + 1) + ". " + agent.getPrenom() + " " + agent.getNom() + 
+                                 " - Montant total: " + montant + " DH");
+            }
+
+            return classement;
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors du classement des agents: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+    
+    @Override
+    public List<Agent> listerAgentsMonDepartement(int idResponsable) {
+        try {
+            Agent responsable = agentDao.lireParId(idResponsable);
+            if (responsable == null || responsable.getDepartement() == null) {
+                System.err.println("Responsable introuvable ou pas de département assigné");
+                return new ArrayList<>();
+            }
+            
+            int departementId = responsable.getDepartement().getId();
+            List<Agent> tousLesAgents = agentDao.lireTous();
+            
+            List<Agent> agentsDepartement = tousLesAgents.stream()
+                .filter(agent -> agent.getDepartement() != null && 
+                               agent.getDepartement().getId() == departementId)
+                .collect(Collectors.toList());
+                
+            System.out.println("Agents du département " + responsable.getDepartement().getNom() + ": " + agentsDepartement.size());
+            return agentsDepartement;
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la liste des agents du département: " + e.getMessage());
             return new ArrayList<>();
         }
     }

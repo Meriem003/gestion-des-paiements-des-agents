@@ -10,4 +10,5 @@ public interface IAgentDao {
     List<Agent> lireTous();
     void mettreAJour(Agent agent);
     void supprimer(int id);
+    Agent authentifier(String email, String motDePasse);
 }
