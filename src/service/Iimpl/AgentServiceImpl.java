@@ -33,18 +33,15 @@ public class AgentServiceImpl implements IAgentService {
                 System.err.println("Agent introuvable avec l'ID: " + agentId);
                 return null;
             }
-            System.out.println("=== INFORMATIONS DE L'AGENT ===");
-            System.out.println("ID: " + agent.getId());
             System.out.println("Nom: " + agent.getNom());
             System.out.println("Prénom: " + agent.getPrenom());
             System.out.println("Email: " + agent.getEmail());
             System.out.println("Type: " + agent.getTypeAgent());
             if (agent.getDepartement() != null) {
-                System.out.println("Département: " + agent.getDepartement().getNom() + " (ID: " + agent.getDepartement().getId() + ")");
+                System.out.println("Département: " + agent.getDepartement().getNom());
             } else {
                 System.out.println("Département: Non assigné");
             }
-            System.out.println("Responsable de département: " + (agent.isEstResponsableDepartement() ? "Oui" : "Non"));
             return agent;
         } catch (Exception e) {
             System.err.println("Erreur lors de la récupération des informations de l'agent: " + e.getMessage());

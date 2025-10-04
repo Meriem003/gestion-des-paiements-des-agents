@@ -333,4 +333,134 @@ public class DirecteurController {
             scanner.nextLine(); 
         }
     }
+
+    public void modifierResponsable(int directeurId) {
+        try {
+            System.out.println("\n=== MODIFICATION D'UN RESPONSABLE ===");
+            
+            List<Agent> responsables = directeurService.listerTousResponsables();
+            if (responsables.isEmpty()) {
+                System.out.println("Aucun responsable disponible.");
+                return;
+            }
+            
+            System.out.println("Responsables disponibles :");
+            for (Agent resp : responsables) {
+                System.out.println(resp.getId() + ". " + resp.getPrenom() + " " + resp.getNom() + " (" + resp.getEmail() + ")");
+            }
+            
+            System.out.print("ID du responsable à modifier : ");
+            int responsableId = scanner.nextInt();
+            scanner.nextLine();
+            
+            System.out.print("Nouveau nom : ");
+            String nom = scanner.nextLine();
+            
+            System.out.print("Nouveau prénom : ");
+            String prenom = scanner.nextLine();
+            
+            System.out.print("Nouvel email : ");
+            String email = scanner.nextLine();
+            
+            boolean success = directeurService.modifierResponsable(responsableId, nom, prenom, email);
+            if (success) {
+                System.out.println("✅ Responsable modifié avec succès !");
+            } else {
+                System.out.println("❌ Erreur lors de la modification du responsable.");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la modification : " + e.getMessage());
+            scanner.nextLine(); 
+        }
+    }
+
+    public void supprimerResponsable(int directeurId) {
+        try {
+            System.out.println("\n=== SUPPRESSION D'UN RESPONSABLE ===");
+            
+            List<Agent> responsables = directeurService.listerTousResponsables();
+            if (responsables.isEmpty()) {
+                System.out.println("Aucun responsable disponible.");
+                return;
+            }
+            
+            System.out.println("Responsables disponibles :");
+            for (Agent resp : responsables) {
+                System.out.println(resp.getId() + ". " + resp.getPrenom() + " " + resp.getNom() + " (" + resp.getEmail() + ")");
+            }
+            
+            System.out.print("ID du responsable à supprimer : ");
+            int responsableId = scanner.nextInt();
+            scanner.nextLine();
+            
+            System.out.print("Êtes-vous sûr de vouloir supprimer ce responsable ? (oui/non) : ");
+            String confirmation = scanner.nextLine();
+            
+            if (confirmation.equalsIgnoreCase("oui")) {
+                boolean success = directeurService.supprimerResponsable(responsableId);
+                if (success) {
+                    System.out.println("✅ Responsable supprimé avec succès !");
+                } else {
+                    System.out.println("❌ Erreur lors de la suppression du responsable.");
+                }
+            } else {
+                System.out.println("Suppression annulée.");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la suppression : " + e.getMessage());
+            scanner.nextLine(); 
+        }
+    }
+
+    public void listerTousResponsables(int directeurId) {
+        try {
+            System.out.println("\n=== LISTE DE TOUS LES RESPONSABLES ===");
+            
+            List<Agent> responsables = directeurService.listerTousResponsables();
+            if (responsables.isEmpty()) {
+                System.out.println("Aucun responsable trouvé.");
+                return;
+            }
+            
+            System.out.println("Total des responsables : " + responsables.size());
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            
+            for (Agent resp : responsables) {
+                System.out.println("ID: " + resp.getId());
+                System.out.println("Nom: " + resp.getPrenom() + " " + resp.getNom());
+                System.out.println("Email: " + resp.getEmail());
+                System.out.println("Département: " + (resp.getDepartement() != null ? resp.getDepartement().getNom() : "Non assigné"));
+                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération des responsables : " + e.getMessage());
+        }
+    }
+
+    public void obtenirNombreTotalAgents(int directeurId) {
+        try {
+            System.out.println("\n=== NOMBRE TOTAL D'AGENTS ===");
+            
+            int nombreAgents = directeurService.obtenirNombreTotalAgents();
+            System.out.println("📊 Nombre total d'agents dans l'entreprise : " + nombreAgents);
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération du nombre d'agents : " + e.getMessage());
+        }
+    }
+
+    public void obtenirNombreTotalDepartements(int directeurId) {
+        try {
+            System.out.println("\n=== NOMBRE TOTAL DE DÉPARTEMENTS ===");
+            
+            int nombreDepartements = directeurService.obtenirNombreTotalDepartements();
+            System.out.println("🏢 Nombre total de départements : " + nombreDepartements);
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération du nombre de départements : " + e.getMessage());
+        }
+    }
 }

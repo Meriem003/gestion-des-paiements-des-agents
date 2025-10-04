@@ -441,4 +441,59 @@ public class PaiementController {
             System.err.println("Erreur lors de la consultation : " + e.getMessage());
         }
     }
+
+    public void effectuerAuditPaiements() {
+        try {
+            System.out.println("\n=== AUDIT DES PAIEMENTS ===");
+            
+            List<Paiement> tousPaiements = paiementService.obtenirTousLesPaiements();
+            if (tousPaiements.isEmpty()) {
+                System.out.println("Aucun paiement à auditer.");
+                return;
+            }
+            
+            int totalPaiements = tousPaiements.size();
+            int paiementsValides = 0;
+            int paiementsEnAttente = 0;
+            BigDecimal montantTotal = BigDecimal.ZERO;
+            BigDecimal montantValide = BigDecimal.ZERO;
+            
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.out.println("Analyse des paiements en cours...");
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            
+            for (Paiement p : tousPaiements) {
+                montantTotal = montantTotal.add(p.getMontant());
+                
+                if (p.isConditionValidee()) {
+                    paiementsValides++;
+                    montantValide = montantValide.add(p.getMontant());
+                } else {
+                    paiementsEnAttente++;
+                }
+            }
+            
+            System.out.println("📊 RÉSULTATS DE L'AUDIT");
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.out.println("Total des paiements : " + totalPaiements);
+            System.out.println("Paiements validés : " + paiementsValides + " ✅");
+            System.out.println("Paiements en attente : " + paiementsEnAttente + " ⏳");
+            System.out.println("Taux de validation : " + String.format("%.2f%%", 
+                (double) paiementsValides / totalPaiements * 100));
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.out.println("Montant total des paiements : " + montantTotal + " €");
+            System.out.println("Montant validé : " + montantValide + " €");
+            System.out.println("Montant en attente : " + montantTotal.subtract(montantValide) + " €");
+            
+            if (paiementsEnAttente > 0) {
+                System.out.println("\n⚠️ ATTENTION : Des paiements nécessitent une validation !");
+                System.out.println("Veuillez traiter les paiements en attente.");
+            } else {
+                System.out.println("\n✅ Tous les paiements sont validés !");
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de l'audit : " + e.getMessage());
+        }
+    }
 }

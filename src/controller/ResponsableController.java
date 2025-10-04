@@ -469,4 +469,107 @@ public class ResponsableController {
             System.err.println("Erreur lors du classement : " + e.getMessage());
         }
     }
+
+    public void listerAgentsMonDepartement(int responsableId) {
+        try {
+            System.out.println("\n=== LISTE DES AGENTS DE MON DÉPARTEMENT ===");
+            
+            List<Agent> agents = responsableService.listerAgentsMonDepartement(responsableId);
+            if (agents.isEmpty()) {
+                System.out.println("Aucun agent trouvé dans votre département.");
+                return;
+            }
+            
+            System.out.println("Total des agents : " + agents.size());
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.out.printf("%-5s %-25s %-20s %-15s%n", "ID", "Nom Complet", "Email", "Type");
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            
+            for (Agent agent : agents) {
+                System.out.printf("%-5d %-25s %-20s %-15s%n",
+                    agent.getId(),
+                    agent.getPrenom() + " " + agent.getNom(),
+                    agent.getEmail(),
+                    agent.getTypeAgent()
+                );
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors de la récupération des agents : " + e.getMessage());
+        }
+    }
+
+    public void filtrerPaiementsDepartement(int responsableId) {
+        try {
+            System.out.println("\n=== FILTRER LES PAIEMENTS DU DÉPARTEMENT ===");
+            
+            // Récupérer les informations du responsable pour obtenir son département
+            System.out.print("ID du département : ");
+            int departementId = scanner.nextInt();
+            scanner.nextLine();
+            
+            System.out.println("Types de paiement disponibles :");
+            System.out.println("1. SALAIRE");
+            System.out.println("2. PRIME");
+            System.out.println("3. BONUS");
+            System.out.println("4. Tous les types");
+            
+            System.out.print("Choix du type : ");
+            int choixType = scanner.nextInt();
+            scanner.nextLine();
+            
+            TypePaiement typePaiement = null;
+            switch (choixType) {
+                case 1:
+                    typePaiement = TypePaiement.SALAIRE;
+                    break;
+                case 2:
+                    typePaiement = TypePaiement.PRIME;
+                    break;
+                case 3:
+                    typePaiement = TypePaiement.BONUS;
+                    break;
+                case 4:
+                    typePaiement = null;
+                    break;
+                default:
+                    System.out.println("Choix invalide, affichage de tous les types.");
+                    typePaiement = null;
+            }
+            
+            System.out.print("Trier par montant ? (oui/non) : ");
+            boolean triParMontant = scanner.nextLine().equalsIgnoreCase("oui");
+            
+            System.out.print("Trier par date ? (oui/non) : ");
+            boolean triParDate = scanner.nextLine().equalsIgnoreCase("oui");
+            
+            List<Paiement> paiementsFiltres = responsableService.filtrerPaiementsDepartement(
+                departementId, typePaiement, triParMontant, triParDate, responsableId);
+            
+            if (paiementsFiltres.isEmpty()) {
+                System.out.println("Aucun paiement trouvé avec les critères spécifiés.");
+                return;
+            }
+            
+            System.out.println("\n📊 RÉSULTATS DU FILTRAGE");
+            System.out.println("Total des paiements : " + paiementsFiltres.size());
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.out.printf("%-5s %-15s %-12s %-12s %-10s%n", "ID", "Type", "Montant", "Date", "Statut");
+            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            
+            for (Paiement p : paiementsFiltres) {
+                System.out.printf("%-5d %-15s %-12.2f %-12s %-10s%n",
+                    p.getId(),
+                    p.getTypePaiement(),
+                    p.getMontant(),
+                    p.getDatePaiement().toString(),
+                    p.isConditionValidee() ? "✅" : "⏳"
+                );
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Erreur lors du filtrage : " + e.getMessage());
+            scanner.nextLine();
+        }
+    }
 }

@@ -1,10 +1,15 @@
-import view.MenuPrinciple;
+import controller.AuthController;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("Démarrage du système...");
-        
-        MenuPrinciple menu = new MenuPrinciple();
-        menu.demarrer();
+        try {
+            AuthController authController = new AuthController();            
+            authController.afficherEcranLogin();
+            
+        } catch (Exception e) {
+            System.err.println("Erreur critique lors du démarrage de l'application :");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
     }
 }
