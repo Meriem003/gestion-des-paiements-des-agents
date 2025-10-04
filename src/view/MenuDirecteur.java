@@ -171,4 +171,5 @@ public class MenuDirecteur {
     public void setDirecteurConnecte(Agent directeurConnecte) {
         this.directeurConnecte = directeurConnecte;
     }
+    
 }
