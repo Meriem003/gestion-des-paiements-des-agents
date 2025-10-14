@@ -129,8 +129,17 @@ public class PaiementDao implements IPaiementDao {
         paiement.setMotif(rs.getString("motif"));
         paiement.setConditionValidee(rs.getBoolean("condition_validee"));
         int agentId = rs.getInt("agent_id");
-        Agent agent = new Agent();
-        agent.setId(agentId);
+        Agent agent = null;
+        try {
+            AgentDao agentDao = new AgentDao(this.connection);
+            agent = agentDao.lireParId(agentId);
+        } catch (Exception e) {
+            System.err.println("Impossible de charger l'agent complet pour le paiement: " + e.getMessage());
+        }
+        if (agent == null) {
+            agent = new Agent();
+            agent.setId(agentId);
+        }
         paiement.setAgent(agent);
         return paiement;
     }

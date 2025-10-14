@@ -50,7 +50,7 @@ public class PaiementController {
             
             System.out.println("Bonus créé avec succès !");
             System.out.println("ID: " + bonus.getId());
-            System.out.println("Montant: " + bonus.getMontant() + "€");
+            System.out.println("Montant: " + bonus.getMontant() + "DH");
             System.out.println("Bénéficiaire: " + bonus.getAgent().getNom() + " " + bonus.getAgent().getPrenom());
             System.out.println("Statut: Validé directement");
             
@@ -119,7 +119,7 @@ public class PaiementController {
             System.out.println("Total des paiements : " + totalPaiements);
             System.out.println("Paiements validés : " + paiementsValides);
             System.out.println("Paiements en attente : " + (totalPaiements - paiementsValides));
-            System.out.println("Montant total validé : " + montantTotal + "€");
+            System.out.println("Montant total validé : " + montantTotal + "DH");
             
             System.out.println("RÉPARTITION PAR TYPE");
             for (TypePaiement type : TypePaiement.values()) {
@@ -131,7 +131,7 @@ public class PaiementController {
                         .map(Paiement::getMontant)
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 
-                System.out.printf("%-12s : %3d paiements - %10.2f€%n", type, count, montantType);
+                System.out.printf("%-12s : %3d paiements - %10.2fDH%n", type, count, montantType);
             }
             
         } catch (Exception e) {
@@ -164,7 +164,7 @@ public class PaiementController {
                     p.getTypePaiement(),
                     p.getMontant(),
                     p.getDatePaiement().format(formatter),
-                    p.isConditionValidee() ? "✅" : "⏳",
+                    p.isConditionValidee() ? "Oui" : "Non",
                     p.getMotif() != null ? (p.getMotif().length() > 25 ? 
                         p.getMotif().substring(0, 25) + "..." : p.getMotif()) : ""
                 );
@@ -175,13 +175,14 @@ public class PaiementController {
             }
             
             System.out.println("=".repeat(100));
-            System.out.println("💰 Total des paiements validés : " + totalValide + "€");
+            System.out.println("Total des paiements validés : " + totalValide + "DH");
             
         } catch (Exception e) {
             System.err.println("Erreur lors de la consultation : " + e.getMessage());
         }
     }
     
+    //menu agent choix 3
     public void consulterMesPaiementsParType(int agentId) {
         try {
             System.out.println("\n=== MES PAIEMENTS PAR TYPE ===");
@@ -214,7 +215,7 @@ public class PaiementController {
                 return;
             }
             
-            System.out.println("\n📋 Historique des " + typeSelectionne + " (" + paiementsType.size() + " paiements)");
+            System.out.println("Historique des " + typeSelectionne + " (" + paiementsType.size() + " paiements)");
             System.out.println("=".repeat(80));
             System.out.printf("%-5s %-12s %-15s %-8s %-30s%n", 
                             "ID", "Montant", "Date", "Validé", "Motif");
@@ -227,7 +228,7 @@ public class PaiementController {
                     p.getId(),
                     p.getMontant(),
                     p.getDatePaiement().format(formatter),
-                    p.isConditionValidee() ? "✅" : "⏳",
+                    p.isConditionValidee() ? "Oui" : "Non",
                     p.getMotif() != null ? (p.getMotif().length() > 25 ? 
                         p.getMotif().substring(0, 25) + "..." : p.getMotif()) : ""
                 );
@@ -238,13 +239,14 @@ public class PaiementController {
             }
             
             System.out.println("=".repeat(80));
-            System.out.println("💰 Total validé pour " + typeSelectionne + " : " + totalType + "€");
+            System.out.println("Total validé pour " + typeSelectionne + " : " + totalType + "DH");
             
         } catch (Exception e) {
             System.err.println("Erreur lors de la consultation : " + e.getMessage());
         }
     }
     
+    //menu agent choix 4
     public void calculerSalairePeriode(int agentId) {
         try {
             System.out.println("\n=== CALCUL SALAIRE SUR PÉRIODE ===");
@@ -262,9 +264,8 @@ public class PaiementController {
             
             System.out.println("\nRÉSULTAT DU CALCUL");
             System.out.println("Période : " + dateDebut.format(formatter) + " au " + dateFin.format(formatter));
-            System.out.println("💰 Salaire total (validé) : " + salaireTotal + "€");
+            System.out.println("Salaire total (validé) : " + salaireTotal + "DH");
             
-            // Détail par type
             System.out.println("DÉTAIL PAR TYPE :");
             for (TypePaiement type : TypePaiement.values()) {
                 List<Paiement> paiementsPeriode = paiementService.obtenirPaiementsParAgent(agentId).stream()
@@ -280,7 +281,7 @@ public class PaiementController {
                         .reduce(BigDecimal.ZERO, BigDecimal::add);
                 
                 if (montantType.compareTo(BigDecimal.ZERO) > 0) {
-                    System.out.printf("  %-12s : %8.2f€ (%d paiement(s))%n", 
+                    System.out.printf("  %-12s : %8.2fDH (%d paiement(s))%n", 
                                     type, montantType, paiementsPeriode.size());
                 }
             }
@@ -292,6 +293,7 @@ public class PaiementController {
         }
     }
     
+    //menu agent choix 4
     public void trierMesPaiements(int agentId) {
         try {
             System.out.println("\n=== TRIER MES PAIEMENTS ===");
@@ -332,7 +334,7 @@ public class PaiementController {
                 return;
             }
             
-            System.out.println("\n📋 PAIEMENTS TRIÉS PAR " + critere.toUpperCase() + 
+            System.out.println("PAIEMENTS TRIÉS PAR " + critere.toUpperCase() + 
                              " (" + (ascendant ? "CROISSANT" : "DÉCROISSANT") + ")");
             System.out.println("=".repeat(100));
             System.out.printf("%-5s %-15s %-12s %-15s %-8s %-30s%n", 
@@ -372,9 +374,9 @@ public class PaiementController {
             
             Paiement salaire = paiementService.traiterPaiement(agentId, TypePaiement.SALAIRE, montant, motif);
             if (salaire != null) {
-                System.out.println("✅ Salaire ajouté avec succès (ID: " + salaire.getId() + ")");
+                System.out.println("Salaire ajouté avec succès (ID: " + salaire.getId() + ")");
             } else {
-                System.err.println("❌ Erreur lors de l'ajout du salaire");
+                System.err.println("Erreur lors de l'ajout du salaire");
             }
         } catch (Exception e) {
             System.err.println("Erreur : " + e.getMessage());
@@ -398,9 +400,9 @@ public class PaiementController {
             
             Paiement prime = paiementService.traiterPaiement(agentId, TypePaiement.PRIME, montant, motif);
             if (prime != null) {
-                System.out.println("✅ Prime ajoutée avec succès (ID: " + prime.getId() + ")");
+                System.out.println("Prime ajoutée avec succès (ID: " + prime.getId() + ")");
             } else {
-                System.err.println("❌ Erreur lors de l'ajout de la prime");
+                System.err.println("Erreur lors de l'ajout de la prime");
             }
         } catch (Exception e) {
             System.err.println("Erreur : " + e.getMessage());
@@ -408,6 +410,7 @@ public class PaiementController {
         }
     }
     
+    //menu responsable choix 8
     public void consulterPaiementsAgent() {
         try {
             System.out.println("\n=== CONSULTATION DES PAIEMENTS D'UN AGENT ===");
@@ -443,9 +446,7 @@ public class PaiementController {
     }
 
     public void effectuerAuditPaiements() {
-        try {
-            System.out.println("\n=== AUDIT DES PAIEMENTS ===");
-            
+        try {            
             List<Paiement> tousPaiements = paiementService.obtenirTousLesPaiements();
             if (tousPaiements.isEmpty()) {
                 System.out.println("Aucun paiement à auditer.");
@@ -457,11 +458,6 @@ public class PaiementController {
             int paiementsEnAttente = 0;
             BigDecimal montantTotal = BigDecimal.ZERO;
             BigDecimal montantValide = BigDecimal.ZERO;
-            
-            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-            System.out.println("Analyse des paiements en cours...");
-            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-            
             for (Paiement p : tousPaiements) {
                 montantTotal = montantTotal.add(p.getMontant());
                 
@@ -473,23 +469,23 @@ public class PaiementController {
                 }
             }
             
-            System.out.println("📊 RÉSULTATS DE L'AUDIT");
+            System.out.println("RÉSULTATS DE L'AUDIT");
             System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             System.out.println("Total des paiements : " + totalPaiements);
-            System.out.println("Paiements validés : " + paiementsValides + " ✅");
-            System.out.println("Paiements en attente : " + paiementsEnAttente + " ⏳");
+            System.out.println("Paiements validés : " + paiementsValides );
+            System.out.println("Paiements en attente : " + paiementsEnAttente);
             System.out.println("Taux de validation : " + String.format("%.2f%%", 
                 (double) paiementsValides / totalPaiements * 100));
             System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-            System.out.println("Montant total des paiements : " + montantTotal + " €");
-            System.out.println("Montant validé : " + montantValide + " €");
-            System.out.println("Montant en attente : " + montantTotal.subtract(montantValide) + " €");
+            System.out.println("Montant total des paiements : " + montantTotal + " DH");
+            System.out.println("Montant validé : " + montantValide + " DH");
+            System.out.println("Montant en attente : " + montantTotal.subtract(montantValide) + " DH");
             
             if (paiementsEnAttente > 0) {
-                System.out.println("\n⚠️ ATTENTION : Des paiements nécessitent une validation !");
+                System.out.println("ATTENTION : Des paiements nécessitent une validation !");
                 System.out.println("Veuillez traiter les paiements en attente.");
             } else {
-                System.out.println("\n✅ Tous les paiements sont validés !");
+                System.out.println("Tous les paiements sont validés !");
             }
             
         } catch (Exception e) {

@@ -29,31 +29,26 @@ public class MenuDirecteur {
     public void afficherMenu() {
         int choix = 0;
         do {
-            System.out.println("\n============== MENU DIRECTEUR ==============");
-            System.out.println("🎯 Directeur connecté: " + directeurConnecte.getPrenom() + " " + directeurConnecte.getNom());
-            System.out.println("═════════ Gestion des paiements ════════════");
+            System.out.println("═════════════ MENU DIRECTEUR ═══════════════");
             System.out.println("1. Créer un bonus direct pour responsable");
             System.out.println("2. Consulter tous les paiements");
             System.out.println("3. Générer rapport global des paiements");
             System.out.println("4. Rapport global entreprise");
             System.out.println("5. Audit des paiements");
             System.out.println("6. Top des agents les mieux payés");
-            System.out.println("7. Répartition des paiements par type");
             System.out.println("══════════ Gestion départements ═══════════");
-            System.out.println("8. Créer un département");
-            System.out.println("9. Modifier un département");
-            System.out.println("10. Supprimer un département");
-            System.out.println("11. Lister tous les départements");
+            System.out.println("7. Créer un département");
+            System.out.println("8. Modifier un département");
+            System.out.println("9. Supprimer un département");
+            System.out.println("10. Lister tous les départements");
             System.out.println("═══════════ Gestion des agents ════════════");
-            System.out.println("12. Créer un utilisateur avec département");
-            System.out.println("13. Associer un responsable à un département");
-            System.out.println("14. Modifier un responsable");
-            System.out.println("15. Supprimer un responsable");
-            System.out.println("16. Lister tous les responsables");
-            System.out.println("═══════════════ Statistiques ══════════════");
-            System.out.println("17. Nombre total d'agents");
-            System.out.println("18. Nombre total de départements");
-            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+            System.out.println("11. Créer un utilisateur avec département");
+            System.out.println("12. Associer un responsable à un département");
+            System.out.println("13. Modifier un responsable");
+            System.out.println("14. Supprimer un responsable");
+            System.out.println("15. Lister tous les responsables");
+            System.out.println("═══════════════════════════════════════════════");
+
             System.out.println("0. Déconnexion");
             System.out.print("Votre choix : ");
 
@@ -93,62 +88,47 @@ public class MenuDirecteur {
                         scanner.nextLine();
                         break;
                     case 7:
-                        directeurController.calculerRepartitionPaiementsParType(directeurConnecte.getId());
-                        System.out.println("\nAppuyez sur Entrée pour continuer...");
-                        scanner.nextLine();
-                        break;
-                    case 8:
                         directeurController.creerDepartement(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;
-                    case 9:
+                    case 8:
                         directeurController.modifierDepartement(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;
-                    case 10:
+                    case 9:
                         directeurController.supprimerDepartement(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;
-                    case 11:
+                    case 10:
                         directeurController.listerTousDepartements(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;
-                    case 12:
+                    case 11:
                         directeurController.creerUtilisateurAvecDepartement(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;
-                    case 13:
+                    case 12:
                         directeurController.associerResponsableDepartement(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;
-                    case 14:
+                    case 13:
                         directeurController.modifierResponsable(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;
-                    case 15:
+                    case 14:
                         directeurController.supprimerResponsable(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;
-                    case 16:
+                    case 15:
                         directeurController.listerTousResponsables(directeurConnecte.getId());
-                        System.out.println("\nAppuyez sur Entrée pour continuer...");
-                        scanner.nextLine();
-                        break;
-                    case 17:
-                        directeurController.obtenirNombreTotalAgents(directeurConnecte.getId());
-                        System.out.println("\nAppuyez sur Entrée pour continuer...");
-                        scanner.nextLine();
-                        break;
-                    case 18:
-                        directeurController.obtenirNombreTotalDepartements(directeurConnecte.getId());
                         System.out.println("\nAppuyez sur Entrée pour continuer...");
                         scanner.nextLine();
                         break;

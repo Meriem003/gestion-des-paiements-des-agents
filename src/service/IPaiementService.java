@@ -19,4 +19,5 @@ public interface IPaiementService {
     List<Paiement> obtenirHistoriquePaiementsParType(int agentId, TypePaiement typePaiement);
     List<Paiement> trierPaiements(int agentId, String critere, boolean ascendant);
     Paiement creerBonusDirectParDirecteur(int directeurId, int responsableId, BigDecimal montant, String motif);
+
 }

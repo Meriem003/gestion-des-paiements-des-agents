@@ -269,28 +269,6 @@ public class DirecteurController {
         }
     }
     
-    public void calculerRepartitionPaiementsParType(int directeurId) {
-        try {
-            System.out.println("\n=== RÉPARTITION DES PAIEMENTS PAR TYPE ===");
-            
-            Map<String, Object> rapport = directeurService.genererRapportGlobalEntreprise(directeurId);
-            
-            if (rapport.containsKey("repartitionPaiements")) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> repartition = (Map<String, Object>) rapport.get("repartitionPaiements");
-                
-                System.out.println("\nRépartition des paiements :");
-                for (Map.Entry<String, Object> entry : repartition.entrySet()) {
-                    System.out.printf("%-15s : %sdh%n", entry.getKey(), entry.getValue());
-                }
-            } else {
-                System.out.println("Aucune donnée de répartition disponible.");
-            }
-            
-        } catch (Exception e) {
-            System.err.println("Erreur lors du calcul de la répartition : " + e.getMessage());
-        }
-    }
     
     public void associerResponsableDepartement(int directeurId) {
         try {

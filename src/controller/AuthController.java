@@ -26,7 +26,6 @@ public class AuthController {
         this.loginService = new LoginService();
         this.scanner = new Scanner(System.in);
         
-        // Initialisation des DAO pour les services
         this.agentDao = new AgentDao();
         this.paiementDao = new PaiementDao();
         this.departementDao = new DepartementDao();
@@ -43,46 +42,32 @@ public class AuthController {
         
         while (tentatives < MAX_TENTATIVES) {
             try {
-                System.out.println("\n🔐 Veuillez vous connecter :");
-                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-                
-                // Demande de l'email
-                System.out.print("📧 Email : ");
+                System.out.println("Veuillez vous connecter :");
+                System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+                System.out.print("Email : ");
                 String email = scanner.nextLine().trim();
-                
-                // Validation de l'email
                 if (!loginService.validerFormatEmail(email)) {
-                    System.out.println("❌ Format d'email invalide. Veuillez réessayer.");
+                    System.out.println("Format d'email invalide. Veuillez réessayer.");
                     tentatives++;
                     continue;
                 }
-                
-                // Demande du mot de passe
-                System.out.print("🔑 Mot de passe : ");
+                System.out.print("Mot de passe : ");
                 String motDePasse = scanner.nextLine().trim();
-                
-                // Validation du mot de passe
                 if (!loginService.validerMotDePasse(motDePasse)) {
-                    System.out.println("❌ Mot de passe invalide (minimum 4 caractères).");
+                    System.out.println("Mot de passe invalide (minimum 4 caractères).");
                     tentatives++;
                     continue;
                 }
-                
-                // Tentative d'authentification
                 Agent agentAuthentifie = loginService.authentifier(email, motDePasse);
-                
                 if (agentAuthentifie != null) {
-                    // Authentification réussie
                     afficherSuccesAuthentification(agentAuthentifie);
                     redirigerSelonTypeAgent(agentAuthentifie);
-                    return; // Sortir de la méthode après succès
+                    return;
                 } else {
-                    // Authentification échouée
                     tentatives++;
-                    System.out.println("❌ Email ou mot de passe incorrect.");
-                    
+                    System.out.println("Email ou mot de passe incorrect.");
                     if (tentatives < MAX_TENTATIVES) {
-                        System.out.println("⚠️  Tentative " + tentatives + "/" + MAX_TENTATIVES + 
+                        System.out.println("entative " + tentatives + "/" + MAX_TENTATIVES +
                                          ". Il vous reste " + (MAX_TENTATIVES - tentatives) + " tentative(s).");
                     }
                 }
@@ -92,26 +77,20 @@ public class AuthController {
                 tentatives++;
             }
         }
-        
-        // Trop de tentatives échouées
-        System.out.println("\n🚫 ACCÈS BLOQUÉ");
+        System.out.println("\nACCÈS BLOQUÉ");
         System.out.println("Vous avez dépassé le nombre maximum de tentatives de connexion.");
         System.out.println("Veuillez contacter l'administrateur système.");
         System.exit(1);
     }
-    
-    /**
-     * Affiche les informations de succès d'authentification
-     */
     private void afficherSuccesAuthentification(Agent agent) {
-        System.out.println("\n✅ AUTHENTIFICATION RÉUSSIE !");
+        System.out.println("AUTHENTIFICATION RÉUSSIE !");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("👤 Bienvenue, " + agent.getPrenom() + " " + agent.getNom());
-        System.out.println("📧 Email : " + agent.getEmail());
-        System.out.println("🏷️  Type de compte : " + agent.getTypeAgent());
+        System.out.println("Bienvenue, " + agent.getPrenom() + " " + agent.getNom());
+        System.out.println("Email : " + agent.getEmail());
+        System.out.println("Type de compte : " + agent.getTypeAgent());
         
         if (agent.getDepartement() != null) {
-            System.out.println("🏢 Département : " + agent.getDepartement().getNom());
+            System.out.println("Département : " + agent.getDepartement().getNom());
         }
         
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");

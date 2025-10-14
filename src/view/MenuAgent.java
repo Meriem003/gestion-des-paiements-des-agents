@@ -28,7 +28,7 @@ public class MenuAgent {
                 scanner.nextLine();
                 traiterChoix(choix);
             } catch (Exception e) {
-                System.out.println("❌ Erreur de saisie. Veuillez entrer un nombre valide.");
+                System.out.println("Erreur de saisie. Veuillez entrer un nombre valide.");
                 scanner.nextLine();
                 choix = -1;
             }
@@ -36,17 +36,13 @@ public class MenuAgent {
     }
 
     private void afficherOptionsMenu() {
-        System.out.println("\n============ MENU AGENT ============");
-        System.out.println("👤 Connecté: " + agentConnecte.getNom() + " " + agentConnecte.getPrenom());
-        System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+        System.out.println("============ MENU AGENT ============");
         System.out.println("1. Mes informations");
         System.out.println("2. Mes paiements");
         System.out.println("3. Paiements par type");
         System.out.println("4. Calculer salaire");
         System.out.println("5. Trier paiements");
-        System.out.println("6. Nombre de primes");
-        System.out.println("7. Paiements extrêmes");
-        System.out.println("8. Statistiques");
+        System.out.println("6. Nombre de Paiements");
         System.out.println("0. Déconnexion");
         System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.print("Votre choix : ");
@@ -73,20 +69,13 @@ public class MenuAgent {
                 case 6:
                     agentController.consulterNombrePrimesBonus(agentConnecte.getId());
                     break;
-                case 7:
-                    agentController.consulterPaiementExtremes(agentConnecte.getId());
-                    break;
-                case 8:
-                    agentController.afficherStatistiquesCompletes(agentConnecte.getId());
-                    break;
                 case 0:
                     System.out.println("À bientôt " + agentConnecte.getPrenom() + " !");
                     break;
                 default:
-                    System.out.println("❌ Choix invalide. Veuillez choisir une option entre 0 et 8.");
+                    System.out.println("Choix invalide. Veuillez choisir une option entre 0 et 6.");
             }
         } catch (Exception e) {
-            System.err.println("❌ Erreur lors de l'exécution de l'opération: " + e.getMessage());
             System.out.println("Veuillez réessayer ou contacter l'administrateur si le problème persiste.");
         }
         

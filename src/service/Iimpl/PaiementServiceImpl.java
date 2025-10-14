@@ -61,6 +61,7 @@ public class PaiementServiceImpl implements IPaiementService {
         return paiementDao.lireTous();
     }
     
+    //menu agent choix 2
     @Override
     public List<Paiement> obtenirPaiementsParAgent(int agentId) {
         return paiementDao.findPaiementsByAgentId(agentId);
@@ -105,6 +106,7 @@ public class PaiementServiceImpl implements IPaiementService {
         }
     }
     
+    //menu agent choix 4
     @Override
     public BigDecimal calculerSalaireTotalPeriode(int agentId, LocalDate dateDebut, LocalDate dateFin) {
         if (dateDebut == null || dateFin == null) {
@@ -125,6 +127,10 @@ public class PaiementServiceImpl implements IPaiementService {
                 .filter(montant -> montant != null)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    //test mise en situation paiement
+
+    
     
     @Override
     public Paiement traiterPaiement(int agentId, TypePaiement typePaiement, BigDecimal montant, String motif) {
@@ -179,6 +185,7 @@ public class PaiementServiceImpl implements IPaiementService {
         }
     }
     
+    //menu agent choix 3
     @Override
     public List<Paiement> obtenirHistoriquePaiementsParType(int agentId, TypePaiement typePaiement) {
         if (typePaiement == null) {
@@ -192,6 +199,7 @@ public class PaiementServiceImpl implements IPaiementService {
                 .collect(Collectors.toList());
     }
     
+    //menu agent choix 5
     @Override
     public List<Paiement> trierPaiements(int agentId, String critere, boolean ascendant) {
         if (critere == null || critere.trim().isEmpty()) {

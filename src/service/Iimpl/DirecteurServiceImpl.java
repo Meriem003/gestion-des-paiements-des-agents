@@ -93,31 +93,28 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
         }
     }
 
+
+
     @Override
     public Agent creerUtilisateurAvecDepartement(Agent agent, int departementId, int directeurId) {
         try {
-            // Vérifier que le directeur existe et a les droits
             Agent directeur = agentDao.lireParId(directeurId);
             if (directeur == null || directeur.getTypeAgent() != TypeAgent.DIRECTEUR) {
                 throw new IllegalArgumentException("Seul un directeur peut créer des responsables");
             }
             
-            // Vérifier que le département existe
             Departement departement = departementDao.lireParId(departementId);
             if (departement == null) {
                 throw new IllegalArgumentException("Département introuvable (ID: " + departementId + ")");
             }
             
-            // Forcer le type d'agent à RESPONSABLE_DEPARTEMENT
             agent.setTypeAgent(TypeAgent.RESPONSABLE_DEPARTEMENT);
             
-            // Assigner le département à l'agent
             agent.setDepartement(departement);
             
-            // Créer l'agent
             agentDao.creer(agent);
             
-            System.out.println("✅ Responsable de département créé avec succès :");
+            System.out.println(" Responsable de département créé avec succès :");
             System.out.println("   - Nom: " + agent.getNom() + " " + agent.getPrenom());
             System.out.println("   - Type: " + agent.getTypeAgent());
             System.out.println("   - Département: " + departement.getNom());
@@ -125,7 +122,7 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
             return agent;
             
         } catch (Exception e) {
-            System.err.println("❌ Erreur lors de la création du responsable: " + e.getMessage());
+            System.err.println(" Erreur lors de la création du responsable: " + e.getMessage());
             return null;
         }
     }
@@ -133,17 +130,12 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
     @Override
     public List<Agent> genererTopAgentsMieuxPayes(int nombreAgents, int directeurId) {
         try {
-            // Vérifier que le directeur existe et a les droits
             Agent directeur = agentDao.lireParId(directeurId);
             if (directeur == null || directeur.getTypeAgent() != TypeAgent.DIRECTEUR) {
                 throw new IllegalArgumentException("Seul un directeur peut consulter ce rapport");
-            }
-            
-            // Récupérer tous les agents
+            }            
             List<Agent> tousLesAgents = agentDao.lireTous();
-            IPaiementService paiementService = new service.Iimpl.PaiementServiceImpl();
-            
-            // Créer une liste avec les agents et leur total de paiements
+            IPaiementService paiementService = new service.Iimpl.PaiementServiceImpl();            
             List<Map.Entry<Agent, BigDecimal>> agentsAvecTotaux = new ArrayList<>();
             
             for (Agent agent : tousLesAgents) {
@@ -156,23 +148,21 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
                     
                     agentsAvecTotaux.add(Map.entry(agent, totalPaiements));
                 } catch (Exception e) {
-                    // Si erreur pour un agent, continuer avec les autres
                     System.err.println("Erreur pour l'agent " + agent.getId() + ": " + e.getMessage());
                 }
             }
             
-            // Trier par montant total décroissant et prendre les N premiers
             List<Agent> topAgents = agentsAvecTotaux.stream()
                     .sorted(Map.Entry.<Agent, BigDecimal>comparingByValue().reversed())
                     .limit(nombreAgents)
                     .map(Map.Entry::getKey)
                     .collect(Collectors.toList());
             
-            System.out.println("🏆 TOP " + nombreAgents + " des agents les mieux payés généré");
+            System.out.println(" TOP " + nombreAgents + " des agents les mieux payés généré");
             return topAgents;
             
         } catch (Exception e) {
-            System.err.println("❌ Erreur lors de la génération du top des agents: " + e.getMessage());
+            System.err.println(" Erreur lors de la génération du top des agents: " + e.getMessage());
             return new ArrayList<>();
         }
     }
@@ -182,16 +172,11 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
         try {
             Map<String, Object> rapport = new HashMap<>();
             
-            // Récupérer tous les agents
             List<Agent> tousLesAgents = agentDao.lireTous();
             List<Departement> tousLesDepartements = departementDao.lireTous();
-            List<Paiement> tousLesPaiements = paiementDao.lireTous();
-            
-            // Statistiques générales
+            List<Paiement> tousLesPaiements = paiementDao.lireTous();            
             rapport.put("totalAgents", tousLesAgents.size());
-            rapport.put("totalDepartements", tousLesDepartements.size());
-            
-            // Calculs des paiements
+            rapport.put("totalDepartements", tousLesDepartements.size());            
             BigDecimal totalPaiements = tousLesPaiements.stream()
                     .map(Paiement::getMontant)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -206,7 +191,6 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
                 rapport.put("moyenneParAgent", BigDecimal.ZERO);
             }
             
-            // Paiements extrêmes
             if (!tousLesPaiements.isEmpty()) {
                 BigDecimal max = tousLesPaiements.stream()
                         .map(Paiement::getMontant)
@@ -222,7 +206,6 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
                 rapport.put("paiementMin", min);
             }
             
-            // Répartition par type d'agent
             Map<String, Long> repartitionAgents = new HashMap<>();
             for (TypeAgent type : TypeAgent.values()) {
                 long count = tousLesAgents.stream()
@@ -235,7 +218,7 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
             return rapport;
             
         } catch (Exception e) {
-            System.err.println("❌ Erreur lors de la génération du rapport global: " + e.getMessage());
+            System.err.println("Erreur lors de la génération du rapport global: " + e.getMessage());
             return new HashMap<>();
         }
     }
@@ -319,7 +302,6 @@ public class DirecteurServiceImpl extends AgentServiceImpl implements IDirecteur
                 return false;
             }
             
-            // Mise à jour des informations
             responsable.setNom(nom);
             responsable.setPrenom(prenom);
             responsable.setEmail(email);
